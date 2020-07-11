@@ -4,33 +4,43 @@
 #include <iostream>
 #include "dezero/steps.hpp"
 
-void print_separator(const std::string& title)
-{
-	std::cout << std::endl << "---------------- " << title << " ----------------" << std::endl;
-}
+using namespace dz;
+
 
 void step01()
 {
-	print_separator(__func__);
-
-	dz::NdArray data = { 1.0 };
-	auto x = dz::Variable(data);
-	std::cout << x.data;
+	NdArray data = { 1.0 };
+	auto x = Variable(data);
+	std::cout << NdArrayPrinter(x.data) << std::endl;
 }
 
 void step02()
 {
-	print_separator(__func__);
-
-	auto x = dz::Variable(dz::NdArray({ 10.0 }));
-	auto f = dz::Square();
+	auto x = Variable(NdArray({ 10.0 }));
+	auto f = Square();
 	auto y = f(x);
 	std::cout << typeid(y).name() << std::endl;
-	std::cout << y.data << std::endl;
+	std::cout << NdArrayPrinter(y.data) << std::endl;
+}
+
+void step03()
+{
+	auto A = Square();
+	auto B = Exp();
+	auto C = Square();
+
+	auto x = Variable(NdArray({ 0.5 }));
+	auto a = A(x);
+	auto b = B(a);
+	auto y = C(b);
+	std::cout << NdArrayPrinter(y.data) << std::endl;
 }
 
 int main()
 {
-	step01();
-	step02();
+	std::cout << std::fixed << std::setprecision(15);
+
+	//step01();
+	//step02();
+	step03();
 }
