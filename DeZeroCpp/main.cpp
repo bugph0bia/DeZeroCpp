@@ -2,13 +2,35 @@
 //
 
 #include <iostream>
-#include "core.hpp"
+#include "dezero/steps.hpp"
+
+void print_separator(const std::string& title)
+{
+	std::cout << std::endl << "---------------- " << title << " ----------------" << std::endl;
+}
+
+void step01()
+{
+	print_separator(__func__);
+
+	dz::NdArray data = { 1.0 };
+	auto x = dz::Variable(data);
+	std::cout << x.data;
+}
+
+void step02()
+{
+	print_separator(__func__);
+
+	auto x = dz::Variable(dz::NdArray({ 10.0 }));
+	auto f = dz::Square();
+	auto y = f(x);
+	std::cout << typeid(y).name() << std::endl;
+	std::cout << y.data << std::endl;
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
-
-	dz::NdArray a = { {1, 2, 3}, {4, 5, 6} };
-	dz::Variable va(a);
-	std::cout << "Variable: " << va.data << "shape: " << va.data.shape();
+	step01();
+	step02();
 }
