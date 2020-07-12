@@ -31,6 +31,9 @@ public:
 class Function
 {
 public:
+	// デストラクタ
+	virtual ~Function() {}
+
 	// ()演算子
 	Variable operator()(const Variable& input)
 	{
