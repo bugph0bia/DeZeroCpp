@@ -1,44 +1,16 @@
-#pragma once
 
-#include <iostream>
-#include <cmath>
-#include <functional>
+#include "pch.h"
 
-#include "NumCpp.hpp"
+#include "../dezero/dezero.hpp"
 
+using namespace dz;
 
-namespace dz
-{
-
-//----------------------------------
-// typedef
-//----------------------------------
-using data_t = double;	// TODO: 最終的には float にする
-using NdArray = nc::NdArray<data_t>;
-
-//----------------------------------
-// utility
-//----------------------------------
-// NdArrayの出力ヘルパークラス
-class NdArrayPrinter
-{
-public:
-	NdArray& data;
-	NdArrayPrinter(NdArray& data) :
-		data(data)
-	{}
-};
-std::ostream& operator<<(std::ostream& ost, const NdArrayPrinter& nda)
-{
-	// NdArrayがスカラーなら中身のデータを標準出力へ
-	if (nda.data.shape().rows == 1 && nda.data.shape().cols == 1) ost << nda.data[0];
-	else ost << nda.data;
-	return ost;
-}
+namespace step04 {
 
 //----------------------------------
 // class
 //----------------------------------
+
 // 変数クラス
 class Variable
 {
@@ -97,6 +69,7 @@ public:
 //----------------------------------
 // function
 //----------------------------------
+
 // 数値微分
 NdArray numerical_diff(std::function<Variable(Variable)> f, const Variable& x, data_t eps = 1e-4)
 {
@@ -107,4 +80,19 @@ NdArray numerical_diff(std::function<Variable(Variable)> f, const Variable& x, d
 	return (y1.data - y0.data) / (2 * eps);
 }
 
-}	// namespace dezerocpp
+Variable f(const Variable& x)
+{
+	auto A = Square();
+	auto B = Exp();
+	auto C = Square();
+	return C(B(A(x)));
+}
+
+void step04()
+{
+	auto x = Variable(NdArray({ 0.5 }));
+	auto dy = numerical_diff(f, x);
+	std::cout << NdArrayPrinter(dy) << std::endl;
+}
+
+}

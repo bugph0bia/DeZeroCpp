@@ -16,15 +16,48 @@
     <Filter Include="ヘッダー ファイル\dezero">
       <UniqueIdentifier>{48cffeac-bdfb-4f94-8409-9597b56069cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\steps">
+      <UniqueIdentifier>{8c542b7d-44b7-4a4d-b7a0-10e2b095f1d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\dezero">
+      <UniqueIdentifier>{395f9fbf-beb5-488f-bc57-727a88907df3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="steps\step01.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
+    <ClCompile Include="steps\step02.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
+    <ClCompile Include="steps\step03.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
+    <ClCompile Include="steps\step04.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
+    <ClCompile Include="dezero\util.cpp">
+      <Filter>ソース ファイル\dezero</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dezero\steps.hpp">
+    <ClInclude Include="dezero\core.hpp">
       <Filter>ヘッダー ファイル\dezero</Filter>
+    </ClInclude>
+    <ClInclude Include="dezero\util.hpp">
+      <Filter>ヘッダー ファイル\dezero</Filter>
+    </ClInclude>
+    <ClInclude Include="dezero\dezero.hpp">
+      <Filter>ヘッダー ファイル\dezero</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
