@@ -7,8 +7,8 @@
 
 #include <iomanip>
 
-namespace step06 {
-extern void step06();
+namespace step07 {
+extern void step07();
 }
 
 int main()
@@ -16,5 +16,5 @@ int main()
 	// 標準出力の小数点以下桁数を 15 とする
 	std::cout << std::fixed << std::setprecision(15);
 
-	step06::step06();
+	step07::step07();
 }
