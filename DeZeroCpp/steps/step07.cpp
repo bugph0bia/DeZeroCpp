@@ -44,6 +44,9 @@ public:
 	{
 		creator = func;
 	}
+
+	// ‹t“`”d(Ä‹A)
+	void backward();
 };
 
 // ŠÖ”ƒNƒ‰ƒX
@@ -124,6 +127,18 @@ public:
 	}
 };
 
+// ‹t“`”d(Ä‹A)
+// “à•”‚Å Function ƒNƒ‰ƒX‚Ìƒƒ“ƒo‚ğQÆ‚µ‚Ä‚¢‚é‚½‚ß‚±‚ÌˆÊ’u‚Å’è‹`‚·‚é•K—v‚ª‚ ‚é
+void Variable::backward()
+{
+	auto f = this->creator;
+	if (f != nullptr) {
+		auto x = f->input;
+		x->grad = new NdArray(f->backward(*(this->grad)));
+		x->backward();
+	}
+}
+
 //----------------------------------
 // function
 //----------------------------------
@@ -139,28 +154,32 @@ void step07()
 	auto b = B(a);
 	auto y = C(b);
 
-	assert(y.creator == &C);
-	assert(y.creator->input == &b);
-	assert(y.creator->input->creator == &B);
-	assert(y.creator->input->creator->input == &a);
-	assert(y.creator->input->creator->input->creator == &A);
-	assert(y.creator->input->creator->input->creator->input == &x);
+	//assert(y.creator == &C);
+	//assert(y.creator->input == &b);
+	//assert(y.creator->input->creator == &B);
+	//assert(y.creator->input->creator->input == &a);
+	//assert(y.creator->input->creator->input->creator == &A);
+	//assert(y.creator->input->creator->input->creator->input == &x);
+
+	//y.grad = new NdArray({ 1.0 });
+
+	//auto tmp_C = y.creator;
+	//auto tmp_b = tmp_C->input;
+	//tmp_b->grad = new NdArray(tmp_C->backward(*y.grad));
+
+	//auto tmp_B = tmp_b->creator;
+	//auto tmp_a = tmp_B->input;
+	//tmp_a->grad = new NdArray(tmp_B->backward(*tmp_b->grad));
+
+	//auto tmp_A = tmp_a->creator;
+	//auto tmp_x = tmp_A->input;
+	//tmp_x->grad = new NdArray(tmp_A->backward(*tmp_a->grad));
+
+	//std::cout << NdArrayPrinter(*tmp_x->grad) << std::endl;
 
 	y.grad = new NdArray({ 1.0 });
-
-	auto tmp_C = y.creator;
-	auto tmp_b = tmp_C->input;
-	tmp_b->grad = new NdArray(tmp_C->backward(*y.grad));
-
-	auto tmp_B = tmp_b->creator;
-	auto tmp_a = tmp_B->input;
-	tmp_a->grad = new NdArray(tmp_B->backward(*tmp_b->grad));
-
-	auto tmp_A = tmp_a->creator;
-	auto tmp_x = tmp_A->input;
-	tmp_x->grad = new NdArray(tmp_A->backward(*tmp_a->grad));
-
-	std::cout << NdArrayPrinter(*tmp_x->grad) << std::endl;
+	y.backward();
+	std::cout << NdArrayPrinter(*x.grad) << std::endl;
 }
 
 }
