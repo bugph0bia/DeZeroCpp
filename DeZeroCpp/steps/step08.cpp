@@ -14,15 +14,20 @@ namespace step08 {
 class Variable;
 class Function;
 
+using NdArrayPtr = std::shared_ptr<NdArray>;
+using VariablePtr = std::shared_ptr<Variable>;
+using FunctionPtr = std::shared_ptr<Function>;
+
+
 // 変数クラス
 class Variable
 {
 	//protected:	// このステップでは一時的にpublicにする
 public:
 	// 勾配
-	NdArray* grad;
+	NdArrayPtr grad;
 	// 生成元の関数
-	Function* creator;
+	FunctionPtr creator;
 
 public:
 	// 内部データ
@@ -34,13 +39,10 @@ public:
 	{}
 
 	// デストラクタ
-	virtual ~Variable()
-	{
-		if (grad) delete grad;
-	}
+	virtual ~Variable() {}
 
 	// 生成元の関数を設定
-	void set_creator(Function* func)
+	void set_creator(const FunctionPtr& func)
 	{
 		creator = func;
 	}
@@ -50,48 +52,35 @@ public:
 };
 
 // 関数クラス
-class Function
+class Function : public std::enable_shared_from_this<Function>
 {
 	//protected:	// このステップでは一時的にpublicにする
 public:
 	// 入力データ
-	Variable* input;
+	VariablePtr input;
 	// 出力データ
-	Variable* output;
+	VariablePtr output;
 
 public:
 	// デストラクタ
-	virtual ~Function()
-	{
-		if (output) delete output;
-	}
+	virtual ~Function() {}
 
 	// ()演算子
-	Variable* operator()(Variable* input)
+	VariablePtr operator()(const VariablePtr& input)
 	{
 		auto x = input->data;
 		auto y = this->forward(x);
-		auto output = new Variable(y);
-		output->set_creator(this);
+		auto output = std::make_shared<Variable>(y);
+		output->set_creator(shared_from_this());
 		this->input = input;
 		this->output = output;
 		return output;
 	}
 
 	// 順伝播
-	virtual NdArray forward(const NdArray& x)
-	{
-		// No Implemented
-		assert(false);
-		return x;
-	}
+	virtual NdArray forward(const NdArray& x) = 0;
 	// 逆伝播
-	virtual NdArray backward(const NdArray& gy)
-	{
-		// No Implemented
-		assert(false);
-		return gy;
-	}
+	virtual NdArray backward(const NdArray& gy) = 0;
 };
 
 // 関数クラス（2乗）
@@ -135,7 +124,7 @@ public:
 void Variable::backward()
 {
 	// 関数リスト
-	auto funcs = std::vector<Function*>({ this->creator });
+	auto funcs = std::vector<FunctionPtr>({ this->creator });
 	while (!funcs.empty()) {
 		// リストから関数を取り出す
 		auto f = funcs.back();
@@ -144,7 +133,7 @@ void Variable::backward()
 		auto x = f->input;
 		auto y = f->output;
 		// 逆伝播を呼ぶ
-		x->grad = new NdArray(f->backward(*y->grad));
+		x->grad = std::make_shared<NdArray>(f->backward(*y->grad));
 
 		if (x->creator != nullptr) {
 			// １つ前の関数をリストに追加
@@ -159,18 +148,18 @@ void Variable::backward()
 
 void step08()
 {
-	auto A = Square();
-	auto B = Exp();
-	auto C = Square();
+	auto A = FunctionPtr(new Square());
+	auto B = FunctionPtr(new Exp());
+	auto C = FunctionPtr(new Square());
 
-	auto x = Variable(NdArray({ 0.5 }));
-	auto a = A(&x);
-	auto b = B(a);
-	auto y = C(b);
+	auto x = std::make_shared<Variable>(NdArray({ 0.5 }));
+	auto a = (*A)(x);
+	auto b = (*B)(a);
+	auto y = (*C)(b);
 
-	y->grad = new NdArray({ 1.0 });
+	y->grad = std::make_shared<NdArray>(NdArray({ 1.0 }));
 	y->backward();
-	std::cout << NdArrayPrinter(*x.grad) << std::endl;
+	std::cout << NdArrayPrinter(*x->grad) << std::endl;
 }
 
 }
