@@ -14,18 +14,15 @@ class Function;
 //----------------------------------
 // typedef
 //----------------------------------
-// NdArrayクラスのスマートポインタ型
-// インスタンス生成時は std::make_shared<NdArray> 関数を使うこと
-using NdArrayPtr = std::shared_ptr<NdArray>;
+// スマートポインタ型
+using NdArrayPtr = std::shared_ptr<NdArray>;	// インスタンス生成時は std::make_shared<NdArray> 関数を使うこと
+using VariablePtr = std::shared_ptr<Variable>;	// インスタンス生成時は std::make_shared<Variable> 関数を使うこと
+using FunctionPtr = std::shared_ptr<Function>;	// 派生クラスのインスタンス生成時は new を使うこと
+												// （make_shared を使うと Function クラスがインスタンス化されてエラーとなる）
+// リスト型
+using NdArrayPtrList = std::vector<NdArrayPtr>;
+using VariablePtrList = std::vector<VariablePtr>;
 
-// Variableクラスのスマートポインタ型
-// インスタンス生成時は std::make_shared<Variable> 関数を使うこと
-using VariablePtr = std::shared_ptr<Variable>;
-
-// Functionクラスのスマートポインタ型
-// 派生クラスのインスタンス生成時は new を使うこと
-// （make_shared を使うと Function クラスがインスタンス化されてエラーとなる）
-using FunctionPtr = std::shared_ptr<Function>;
 
 //// std::initializer_list の {...} 形式で std::make_shared するためのヘルパー関数
 //template<typename ObjType, typename DataType>
@@ -99,29 +96,29 @@ class Function : public std::enable_shared_from_this<Function>
 {
 public:
 	// 入力データ
-	std::vector<VariablePtr> inputs;
+	VariablePtrList inputs;
 	// 出力データ
-	std::vector<VariablePtr> outputs;
+	VariablePtrList outputs;
 
 	// デストラクタ
 	virtual ~Function() {}
 
 	// ()演算子
-	std::vector<VariablePtr> operator()(const VariablePtr& input)
+	VariablePtrList operator()(const VariablePtr& input)
 	{
-		return (*this)(std::vector<VariablePtr>({ input }));
+		return (*this)(VariablePtrList({ input }));
 	}
 
 	// ()演算子
-	std::vector<VariablePtr> operator()(const std::vector<VariablePtr>& inputs)
+	VariablePtrList operator()(const VariablePtrList& inputs)
 	{
-		auto xs = std::vector<NdArrayPtr>();
+		auto xs = NdArrayPtrList();
 		for(const auto& i : inputs) {
 			xs.push_back(i->data);
 		}
 
 		auto ys = this->forward(xs);
-		auto outputs = std::vector<VariablePtr>();
+		auto outputs = VariablePtrList();
 		for(const auto& y : ys) {
 			auto o = as_variable(as_array(*y));
 			o->set_creator(shared_from_this());
@@ -134,7 +131,7 @@ public:
 	}
 
 	// 順伝播
-	virtual std::vector<NdArrayPtr> forward(const std::vector<NdArrayPtr>& xs) = 0;
+	virtual NdArrayPtrList forward(const NdArrayPtrList& xs) = 0;
 	// 逆伝播
 	virtual NdArrayPtr backward(const NdArrayPtr& gy) = 0;
 };
@@ -150,7 +147,7 @@ void Variable::backward()
 	//}
 
 	//// 関数リスト
-	//auto funcs = std::vector<FunctionPtr>({ this->creator });
+	//auto funcs = std::list<FunctionPtr>({ this->creator });
 	//while (!funcs.empty()) {
 	//	// リストから関数を取り出す
 	//	auto f = funcs.back();
@@ -173,12 +170,12 @@ class Add : public Function
 {
 public:
 	// 順伝播
-	std::vector<NdArrayPtr> forward(const std::vector<NdArrayPtr>& xs) override
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
 	{
 		auto x0 = xs[0];
 		auto x1 = xs[1];
 		auto y = (*x0) + (*x1);
-		return std::vector<NdArrayPtr>({ as_array(y) });
+		return NdArrayPtrList({ as_array(y) });
 	}
 	// 逆伝播
 	NdArrayPtr backward(const NdArrayPtr& gy) override
@@ -194,7 +191,7 @@ public:
 
 void step11()
 {
-	auto xs = std::vector<VariablePtr>{ as_variable(as_array({ 2.0 })), as_variable(as_array({ 3.0 })) };
+	auto xs = VariablePtrList({ as_variable(as_array({ 2.0 })), as_variable(as_array({ 3.0 })) });
 	auto f = std::shared_ptr<Function>(new Add());
 	auto ys = (*f)(xs);
 	auto y = ys[0];

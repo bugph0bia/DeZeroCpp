@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <list>
 #include <vector>
 #include "NumCpp.hpp"
 
