@@ -19,11 +19,12 @@ namespace step09 { extern void step09(); }
 namespace step10 { extern void step10(); }
 namespace step11 { extern void step11(); }
 namespace step12 { extern void step12(); }
+namespace step13 { extern void step13(); }
 
 int main()
 {
 	// 標準出力の小数点以下桁数を 15 とする
 	std::cout << std::fixed << std::setprecision(15);
 
-	step12::step12();
+	step13::step13();
 }
