@@ -6,7 +6,7 @@
 
 using namespace dz;
 
-namespace step09 {
+namespace step11 {
 
 class Variable;
 class Function;
@@ -99,127 +99,106 @@ class Function : public std::enable_shared_from_this<Function>
 {
 public:
 	// “ü—Íƒf[ƒ^
-	VariablePtr input;
+	std::vector<VariablePtr> inputs;
 	// o—Íƒf[ƒ^
-	VariablePtr output;
+	std::vector<VariablePtr> outputs;
 
 	// ƒfƒXƒgƒ‰ƒNƒ^
 	virtual ~Function() {}
 
 	// ()‰‰Zq
-	VariablePtr operator()(const VariablePtr& input)
+	std::vector<VariablePtr> operator()(const VariablePtr& input)
 	{
-		auto x = input->data;
-		auto y = this->forward(x);
-		auto output = as_variable(y);
-		output->set_creator(shared_from_this());
-		this->input = input;
-		this->output = output;
-		return output;
+		return (*this)(std::vector<VariablePtr>({ input }));
+	}
+
+	// ()‰‰Zq
+	std::vector<VariablePtr> operator()(const std::vector<VariablePtr>& inputs)
+	{
+		auto xs = std::vector<NdArrayPtr>();
+		for(const auto& i : inputs) {
+			xs.push_back(i->data);
+		}
+
+		auto ys = this->forward(xs);
+		auto outputs = std::vector<VariablePtr>();
+		for(const auto& y : ys) {
+			auto o = as_variable(as_array(*y));
+			o->set_creator(shared_from_this());
+			outputs.push_back(o);
+		}
+
+		this->inputs = std::move(inputs);
+		this->outputs = std::move(outputs);
+		return this->outputs;
 	}
 
 	// ‡“`”d
-	virtual NdArrayPtr forward(const NdArrayPtr& px) = 0;
+	virtual std::vector<NdArrayPtr> forward(const std::vector<NdArrayPtr>& xs) = 0;
 	// ‹t“`”d
-	virtual NdArrayPtr backward(const NdArrayPtr& pgy) = 0;
-};
-
-// ŠÖ”ƒNƒ‰ƒXi2æj
-class Square : public Function
-{
-public:
-	// ‡“`”d
-	NdArrayPtr forward(const NdArrayPtr& px) override
-	{
-		auto x = *px;
-		auto y = nc::power(x, 2);
-		return as_array(y);
-	}
-	// ‹t“`”d
-	NdArrayPtr backward(const NdArrayPtr& pgy) override
-	{
-		auto x = *this->input->data;
-		auto gy = *pgy;
-		auto gx = 2.0 * x * gy;
-		return as_array(gx);
-	}
-};
-
-// ŠÖ”ƒNƒ‰ƒXiexpj
-class Exp : public Function
-{
-public:
-	// ‡“`”d
-	NdArrayPtr forward(const NdArrayPtr& px) override
-	{
-		auto x = *px;
-		auto y = nc::exp(x);
-		return as_array(y);
-	}
-	// ‹t“`”d
-	NdArrayPtr backward(const NdArrayPtr& pgy) override
-	{
-		auto x = *this->input->data;
-		auto gy = *pgy;
-		auto gx = nc::exp(x) * gy;
-		return as_array(gx);
-	}
+	virtual NdArrayPtr backward(const NdArrayPtr& gy) = 0;
 };
 
 // ‹t“`”d
 // “à•”‚Å Function ƒNƒ‰ƒX‚Ìƒƒ“ƒo‚ğQÆ‚µ‚Ä‚¢‚é‚½‚ß‚±‚ÌˆÊ’u‚Å’è‹`‚·‚é•K—v‚ª‚ ‚é
 void Variable::backward()
 {
-	if (!this->grad) {
-		// Œù”z‚Ì‰Šú’l(1)‚ğİ’è
-		auto g = nc::ones_like<data_t>(*this->data);
-		this->grad = as_array(g);
-	}
+	//if (!this->grad) {
+	//	// Œù”z‚Ì‰Šú’l(1)‚ğİ’è
+	//	auto g = nc::ones_like<data_t>(*this->data);
+	//	this->grad = as_array(g);
+	//}
 
-	// ŠÖ”ƒŠƒXƒg
-	auto funcs = std::vector<FunctionPtr>({ this->creator });
-	while (!funcs.empty()) {
-		// ƒŠƒXƒg‚©‚çŠÖ”‚ğæ‚èo‚·
-		auto f = funcs.back();
-		funcs.pop_back();
-		// ŠÖ”‚Ì“üo—Í‚ğæ“¾
-		auto x = f->input;
-		auto y = f->output;
-		// ‹t“`”d‚ğŒÄ‚Ô
-		x->grad = f->backward(y->grad);
+	//// ŠÖ”ƒŠƒXƒg
+	//auto funcs = std::vector<FunctionPtr>({ this->creator });
+	//while (!funcs.empty()) {
+	//	// ƒŠƒXƒg‚©‚çŠÖ”‚ğæ‚èo‚·
+	//	auto f = funcs.back();
+	//	funcs.pop_back();
+	//	// ŠÖ”‚Ì“üo—Í‚ğæ“¾
+	//	auto x = f->input;
+	//	auto y = f->output;
+	//	// ‹t“`”d‚ğŒÄ‚Ô
+	//	x->grad = f->backward(y->grad);
 
-		if (x->creator) {
-			// ‚P‚Â‘O‚ÌŠÖ”‚ğƒŠƒXƒg‚É’Ç‰Á
-			funcs.push_back(x->creator);
-		}
-	}
+	//	if (x->creator) {
+	//		// ‚P‚Â‘O‚ÌŠÖ”‚ğƒŠƒXƒg‚É’Ç‰Á
+	//		funcs.push_back(x->creator);
+	//	}
+	//}
 }
+
+// ŠÖ”ƒNƒ‰ƒXi‰ÁZj
+class Add : public Function
+{
+public:
+	// ‡“`”d
+	std::vector<NdArrayPtr> forward(const std::vector<NdArrayPtr>& xs) override
+	{
+		auto x0 = xs[0];
+		auto x1 = xs[1];
+		auto y = (*x0) + (*x1);
+		return std::vector<NdArrayPtr>({ as_array(y) });
+	}
+	// ‹t“`”d
+	NdArrayPtr backward(const NdArrayPtr& gy) override
+	{
+		// b’è
+		return gy;
+	}
+};
 
 //----------------------------------
 // function
 //----------------------------------
-VariablePtr square(VariablePtr x)
-{
-	auto f = FunctionPtr(new Square());
-	return (*f)(x);
-}
 
-VariablePtr exp(VariablePtr x)
+void step11()
 {
-	auto f = FunctionPtr(new Exp());
-	return (*f)(x);
-}
-
-void step09()
-{
-	auto x = as_variable(as_array({ 0.5 }));
-	//auto a = square(x);
-	//auto b = exp(a);
-	//auto y = square(b);
-	auto y = square(exp(square(x)));
-
-	y->backward();
-	std::cout << NdArrayPrinter(*x->grad) << std::endl;
+	auto xs = std::vector<VariablePtr>{ as_variable(as_array({ 2.0 })), as_variable(as_array({ 3.0 })) };
+	auto f = std::shared_ptr<Function>(new Add());
+	auto ys = (*f)(xs);
+	auto y = ys[0];
+	std::cout << NdArrayPrinter(*y->data) << std::endl;
 }
 
 }

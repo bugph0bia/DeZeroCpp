@@ -5,8 +5,8 @@
 
 using namespace dz;
 
-namespace step05 {
-void step05()
+namespace step10 {
+void step10()
 {
 // ƒR[ƒh‚È‚µ
 }

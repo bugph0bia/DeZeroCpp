@@ -119,7 +119,7 @@ public:
 	}
 };
 
-// 逆伝播(再帰)
+// 逆伝播
 // 内部で Function クラスのメンバを参照しているためこの位置で定義する必要がある
 void Variable::backward()
 {
