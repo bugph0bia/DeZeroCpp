@@ -199,7 +199,7 @@ void step12()
 	auto x0 = as_variable(as_array({ 2.0 }));
 	auto x1 = as_variable(as_array({ 3.0 }));
 	auto y = add({ x0, x1 });
-	std::cout << NdArrayPrinter(*y[0]->data) << std::endl;
+	std::cout << NdArrayPrinter(y[0]->data) << std::endl;
 }
 
 }

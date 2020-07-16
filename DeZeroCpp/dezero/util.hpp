@@ -10,9 +10,12 @@ namespace dz
 class NdArrayPrinter
 {
 public:
-	NdArray& data;
-	NdArrayPrinter(NdArray& data) :
+	const std::shared_ptr<NdArray> data;
+	NdArrayPrinter(const std::shared_ptr<NdArray>& data) :
 		data(data)
+	{}
+	NdArrayPrinter(const NdArray& data) :
+		data(std::make_shared<NdArray>(data))
 	{}
 };
 

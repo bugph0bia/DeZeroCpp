@@ -282,8 +282,8 @@ void step16()
 	auto y = add({ square(a), square(a) });
 	y->backward();
 
-	std::cout << NdArrayPrinter(*y->data) << std::endl;
-	std::cout << NdArrayPrinter(*x->grad) << std::endl;
+	std::cout << NdArrayPrinter(y->data) << std::endl;
+	std::cout << NdArrayPrinter(x->grad) << std::endl;
 }
 
 }

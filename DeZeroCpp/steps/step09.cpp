@@ -219,7 +219,7 @@ void step09()
 	auto y = square(exp(square(x)));
 
 	y->backward();
-	std::cout << NdArrayPrinter(*x->grad) << std::endl;
+	std::cout << NdArrayPrinter(x->grad) << std::endl;
 }
 
 }

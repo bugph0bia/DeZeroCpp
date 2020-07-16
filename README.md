@@ -183,4 +183,5 @@ Windows 上で Visual Studio 2017 以降を使用する。
 - その他
     - Python の `weakref` の代わりに `std::weak_ptr` を使用する。
 
-
+### ステップ 18：メモリ使用量を減らすモード
+※途中の状態

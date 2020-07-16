@@ -112,7 +112,7 @@ void step06()
 	a.grad = std::make_shared<NdArray>(B.backward(*b.grad));
 	x.grad = std::make_shared<NdArray>(A.backward(*a.grad));
 
-	std::cout << NdArrayPrinter(*x.grad);
+	std::cout << NdArrayPrinter(x.grad);
 }
 
 }

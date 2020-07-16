@@ -159,7 +159,7 @@ void step08()
 
 	y->grad = std::make_shared<NdArray>(NdArray({ 1.0 }));
 	y->backward();
-	std::cout << NdArrayPrinter(*x->grad) << std::endl;
+	std::cout << NdArrayPrinter(x->grad) << std::endl;
 }
 
 }

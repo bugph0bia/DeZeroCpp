@@ -236,9 +236,9 @@ void step13()
 
 	auto z = add({ square(x), square(y) });
 	z->backward();
-	std::cout << NdArrayPrinter(*z->data) << std::endl;
-	std::cout << NdArrayPrinter(*x->grad) << std::endl;
-	std::cout << NdArrayPrinter(*y->grad) << std::endl;
+	std::cout << NdArrayPrinter(z->data) << std::endl;
+	std::cout << NdArrayPrinter(x->grad) << std::endl;
+	std::cout << NdArrayPrinter(y->grad) << std::endl;
 }
 
 }

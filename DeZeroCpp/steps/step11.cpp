@@ -195,7 +195,7 @@ void step11()
 	auto f = std::shared_ptr<Function>(new Add());
 	auto ys = (*f)(xs);
 	auto y = ys[0];
-	std::cout << NdArrayPrinter(*y->data) << std::endl;
+	std::cout << NdArrayPrinter(y->data) << std::endl;
 }
 
 }

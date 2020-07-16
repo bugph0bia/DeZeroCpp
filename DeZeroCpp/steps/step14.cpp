@@ -248,12 +248,12 @@ void step14()
 	auto x = as_variable(as_array({ 3.0 }));
 	auto y = add({ x, x });
 	y->backward();
-	std::cout << NdArrayPrinter(*x->grad) << std::endl;
+	std::cout << NdArrayPrinter(x->grad) << std::endl;
 
 	x->cleargrad();
 	y = add({ add({ x, x }), x });
 	y->backward();
-	std::cout << NdArrayPrinter(*x->grad) << std::endl;
+	std::cout << NdArrayPrinter(x->grad) << std::endl;
 }
 
 }
