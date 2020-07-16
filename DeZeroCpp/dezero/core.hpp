@@ -3,6 +3,7 @@
 #include <cmath>
 #include <list>
 #include <vector>
+#include <set>
 #include "NumCpp.hpp"
 
 namespace dz
