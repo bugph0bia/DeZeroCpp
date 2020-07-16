@@ -65,6 +65,70 @@ VariablePtr as_variable(const Variable& data)
 // class
 //----------------------------------
 
+// 設定クラス
+class Config
+{
+private:
+	// コンストラクタ
+	Config() {
+		// 逆伝播可否
+		param["enable_backprop"] = true;
+	}
+
+public:
+	// 設定値
+	std::map<std::string, bool> param;
+
+	// コピー/ムーブ不可
+	Config(const Config&) = delete;
+	Config(Config&&) = delete;
+	Config& operator=(const Config&) = delete;
+	Config& operator=(Config&&) = delete;
+
+	// インスタンス取得
+	static Config& get_instance() {
+		static Config instance;
+		return instance;
+	}
+};
+
+// 設定一時変更クラス
+class UsingConfig
+{
+private:
+	// 変更前の値
+	std::string name;
+	bool old_value;
+
+public:
+	// コンストラクタ
+	UsingConfig(std::string name, bool value) :
+		name(name)
+	{
+		// 設定変更
+		old_value = Config::get_instance().param[name];
+		Config::get_instance().param[name] = value;
+	}
+	// デストラクタ
+	virtual ~UsingConfig()
+	{
+		// 設定復元
+		Config::get_instance().param[name] = old_value;
+	}
+
+	// コピー/ムーブ不可
+	UsingConfig(const UsingConfig&) = delete;
+	UsingConfig(UsingConfig&&) = delete;
+	UsingConfig& operator=(const UsingConfig&) = delete;
+	UsingConfig& operator=(UsingConfig&&) = delete;
+};
+
+// 逆伝播可否を一時的にOFF
+struct no_grad : UsingConfig
+{
+	no_grad() : UsingConfig("enable_backprop", false) {}
+};
+
 // 変数クラス
 class Variable
 {
@@ -140,19 +204,22 @@ public:
 			outputs.push_back(o);
 		}
 
-		// 入力データのうち最大値の世代を自身の世代とする
-		auto max_elem = std::max_element(
-			inputs.cbegin(), inputs.cend(),
-			[](VariablePtr lhs, VariablePtr rhs) { return lhs->generation < rhs->generation; }
-		);
-		this->generation = (*max_elem)->generation;
+		// 逆伝播可能の場合
+		if (Config::get_instance().param["enable_backprop"]) {
+			// 入力データのうち最大値の世代を自身の世代とする
+			auto max_elem = std::max_element(
+				inputs.cbegin(), inputs.cend(),
+				[](VariablePtr lhs, VariablePtr rhs) { return lhs->generation < rhs->generation; }
+			);
+			this->generation = (*max_elem)->generation;
 
-		// 入出力データを保持する
-		this->inputs = inputs;
-		this->outputs = VariableWPtrList();
-		for (const auto& o : outputs) {
-			VariableWPtr w = o;
-			this->outputs.push_back(w);
+			// 入出力データを保持する
+			this->inputs = inputs;
+			this->outputs = VariableWPtrList();
+			for (const auto& o : outputs) {
+				VariableWPtr w = o;
+				this->outputs.push_back(w);
+			}
 		}
 
 		return outputs;
@@ -310,14 +377,34 @@ VariablePtr square(const VariablePtr& xs)
 
 void step18()
 {
-	auto x0 = as_variable(as_array(1.0));
-	auto x1 = as_variable(as_array(1.0));
-	auto t = add({ x0, x1 });
-	auto y = add({ x0, t });
-	y->backward();
+	// このスコープは名前の衝突を避けるためだけ
+	{
+		auto x0 = as_variable(as_array(1.0));
+		auto x1 = as_variable(as_array(1.0));
+		auto t = add({ x0, x1 });
+		auto y = add({ x0, t });
+		y->backward();
 
-	std::cout << NdArrayPrinter(y->grad) << " " << NdArrayPrinter(t->grad) << std::endl;
-	std::cout << NdArrayPrinter(x0->grad) << " " << NdArrayPrinter(x1->grad) << std::endl;
+		std::cout << NdArrayPrinter(y->grad) << " " << NdArrayPrinter(t->grad) << std::endl;
+		std::cout << NdArrayPrinter(x0->grad) << " " << NdArrayPrinter(x1->grad) << std::endl;
+	}
+
+	// UsingConfigのためのスコープ
+	{
+		UsingConfig with("eneble_backprop", false);
+
+		auto x = as_variable(as_array(2.0));
+		auto y = square(x);
+	}
+
+	// no_gradのためのスコープ
+	{
+		no_grad with();
+
+		auto x = as_variable(as_array(2.0));
+		auto y = square(x);
+	}
+
 }
 
 }

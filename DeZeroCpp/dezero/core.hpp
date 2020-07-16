@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <set>
+#include <map>
 #include "NumCpp.hpp"
 
 namespace dz
