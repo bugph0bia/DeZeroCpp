@@ -195,3 +195,10 @@ Windows 上で Visual Studio 2017 以降を使用する。
     - no_grad の方はあえて class ではなく struct とし、サンプルコードと同様のスネークケースで命名した。
         - 単なるこだわりでしかない。
 
+### ステップ 19：変数を使いやすく
+- Variable クラス
+    - shape と size は実装。内部の NdArray に委譲すればよく最小限のコードとする。戻り値も型推論で書く。
+    - ndim は NumCpp だと 2 固定なので実装不要。
+    - dtype は NumCpp だと `NdArray<T>::value_type` で取得可能なので実装不要。
+    - len に相当するメンバが NumCpp に無いので未実装。
+    - print に相当する << 演算子に対応。
