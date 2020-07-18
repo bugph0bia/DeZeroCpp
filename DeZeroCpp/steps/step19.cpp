@@ -179,15 +179,19 @@ std::ostream& operator<<(std::ostream& ost, const Variable& v)
 	osst << *v.data;
 	auto str = osst.str();
 
-	std::string str_s = "\n";
-	std::string str_r = "\n         ";
-	std::string::size_type  Pos(str.find(str_s));
+	// 末尾の改行を削除
+	if (str.back() == '\n') str.pop_back();
 
+	// 途中の改行にインデントを追加
+	std::string str_s = "\n";
+	std::string str_r = "\n          ";
+	std::string::size_type Pos(str.find(str_s));
 	while (Pos != std::string::npos)
 	{
 		str.replace(Pos, str_s.length(), str_r);
 		Pos = str.find(str_s, Pos + str_r.length());
 	}
+
 	ost << "variable(" << str << ")";
 	return ost;
 }
