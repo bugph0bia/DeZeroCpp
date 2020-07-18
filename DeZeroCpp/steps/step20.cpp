@@ -6,7 +6,7 @@
 
 using namespace dz;
 
-namespace step19 {
+namespace step20 {
 
 class Variable;
 class Function;
@@ -176,6 +176,8 @@ public:
 std::ostream& operator<<(std::ostream& ost, const Variable& v)
 {
 	std::ostringstream osst;
+	// •W€o—Í‚Ì¬”“_ˆÈ‰ºŒ…”‚ğ 15 ‚Æ‚·‚é
+	osst << std::fixed << std::setprecision(15);
 	osst << NdArrayPrinter(v.data);
 	auto str = osst.str();
 
@@ -379,6 +381,28 @@ public:
 	}
 };
 
+// ŠÖ”ƒNƒ‰ƒXiæZj
+class Mul : public Function
+{
+public:
+	// ‡“`”d
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x0 = xs[0];
+		auto x1 = xs[1];
+		auto y = (*x0) * (*x1);
+		return { as_array(y) };
+	}
+	// ‹t“`”d
+	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	{
+		auto x0 = this->inputs[0]->data;
+		auto x1 = this->inputs[1]->data;
+
+		return { as_array((*gys[0]) * (*x1)), as_array((*gys[0]) * (*x0)) };
+	}
+};
+
 // ŠÖ”ƒNƒ‰ƒXi2æj
 class Square : public Function
 {
@@ -404,27 +428,48 @@ public:
 // function
 //----------------------------------
 // ‰ÁZ
-VariablePtr add(const VariablePtrList& xs)
+VariablePtr add(const VariablePtr& x0, const VariablePtr& x1)
 {
-	return (*std::shared_ptr<Function>(new Add()))(xs)[0];
+	return (*std::shared_ptr<Function>(new Add()))({ x0, x1 })[0];
+}
+
+// æZ
+VariablePtr mul(const VariablePtr& x0, const VariablePtr& x1)
+{
+	return (*std::shared_ptr<Function>(new Mul()))({ x0, x1 })[0];
 }
 
 // 2æ
-VariablePtr square(const VariablePtr& xs)
+VariablePtr square(const VariablePtr& x0)
 {
-	return (*std::shared_ptr<Function>(new Square()))(xs)[0];
+	return (*std::shared_ptr<Function>(new Square()))(x0)[0];
 }
 
-void step19()
+// VariablePtr‚Ì‰‰ZqƒI[ƒo[ƒ[ƒh
+VariablePtr operator+(const VariablePtr& lhs, const VariablePtr& rhs) { return add(lhs, rhs); }
+VariablePtr operator*(const VariablePtr& lhs, const VariablePtr& rhs) { return mul(lhs, rhs); }
+
+void step20()
 {
-	auto x = as_variable(as_array({ 1, 2, 3 }));
-	std::cout << x << std::endl;
+	{
+		auto a = as_variable(as_array(3.0));
+		auto b = as_variable(as_array(2.0));
+		auto c = as_variable(as_array(1.0));
 
-	x = as_variable();
-	std::cout << x << std::endl;
+		//auto y = add(mul(a, b), c);
+		auto y = a * b + c;
+		y->backward();
 
-	x = as_variable(as_array({ { 1, 2, 3 }, {4, 5, 6} }));
-	std::cout << x << std::endl;
+		std::cout << y << std::endl;
+		std::cout << NdArrayPrinter(a->grad) << std::endl;
+		std::cout << NdArrayPrinter(b->grad) << std::endl;
+	}
+	{
+		auto a = as_variable(as_array(3.0));
+		auto b = as_variable(as_array(2.0));
+		auto y = a * b;
+		std::cout << y << std::endl;
+	}
 }
 
 }
