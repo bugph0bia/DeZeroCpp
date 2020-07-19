@@ -9,7 +9,7 @@ namespace step23 {
 void step23()
 {
 	auto x = as_variable(as_array(1.0));
-	auto y = pow(x + 3, 2);
+	auto y = power(x + 3, 2);
 	y->backward();
 
 	std::cout << y << std::endl;

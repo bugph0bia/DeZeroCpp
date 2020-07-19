@@ -8,21 +8,21 @@ namespace step26 {
 
 VariablePtr sphere(const VariablePtr& x, const VariablePtr& y)
 {
-	auto z = pow(x, 2) + pow(y, 2);
+	auto z = power(x, 2) + power(y, 2);
 	return z;
 }
 
 VariablePtr matyas(const VariablePtr& x, const VariablePtr& y)
 {
-	auto z = 0.26 * (pow(x, 2) + pow(y, 2)) - 0.48 * x * y;
+	auto z = 0.26 * (power(x, 2) + power(y, 2)) - 0.48 * x * y;
 	return z;
 }
 
 VariablePtr goldstein(const VariablePtr& x, const VariablePtr& y)
 {
 	auto z =
-		(1 + pow((x + y + 1), 2) * (19 - 14 * x + 3 * pow(x, 2) - 14 * y + 6 * x * y + 3 * pow(y, 2))) *
-		(30 + pow((2 * x - 3 * y), 2) * (18 - 32 * x + 12 * pow(x, 2) + 48 * y - 36 * x * y + 27 * pow(y, 2)));
+		(1 + power((x + y + 1), 2) * (19 - 14 * x + 3 * power(x, 2) - 14 * y + 6 * x * y + 3 * power(y, 2))) *
+		(30 + power((2 * x - 3 * y), 2) * (18 - 32 * x + 12 * power(x, 2) + 48 * y - 36 * x * y + 27 * power(y, 2)));
 	return z;
 }
 

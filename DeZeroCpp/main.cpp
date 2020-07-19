@@ -33,11 +33,12 @@ namespace step23 { extern void step23(); }
 namespace step24 { extern void step24(); }
 namespace step25 { extern void step25(); }
 namespace step26 { extern void step26(); }
+namespace step27 { extern void step27(); }
 
 int main()
 {
 	// 標準出力の小数点以下桁数を 15 とする
 	std::cout << std::fixed << std::setprecision(15);
 
-	step26::step26();
+	step27::step27();
 }

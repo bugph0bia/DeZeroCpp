@@ -212,9 +212,17 @@ VariablePtr neg(const VariablePtr& x)
 }
 
 // —İæ
-VariablePtr pow(const VariablePtr& x0, uint32_t c)
+VariablePtr power(const VariablePtr& x0, uint32_t c)
 {
 	return (*std::shared_ptr<Function>(new Pow(c)))(x0)[0];
+}
+VariablePtr power(const NdArrayPtr& x, uint32_t c)
+{
+	return power(as_variable(x), c);
+}
+VariablePtr power(data_t x, uint32_t c)
+{
+	return power(as_variable(as_array(x)), c);
 }
 
 // 2æ

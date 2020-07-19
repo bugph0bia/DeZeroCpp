@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <string>
 #include <list>

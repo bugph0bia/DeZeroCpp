@@ -427,7 +427,9 @@ extern VariablePtr pos(const VariablePtr& x);
 // •‰”
 extern VariablePtr neg(const VariablePtr& x);
 // —İæ
-extern VariablePtr pow(const VariablePtr& x0, uint32_t c);
+extern VariablePtr power(const VariablePtr& x, uint32_t c);
+extern VariablePtr power(const NdArrayPtr& x, uint32_t c);
+extern VariablePtr power(data_t x, uint32_t c);
 // 2æ
 extern VariablePtr square(const VariablePtr& x0);
 
