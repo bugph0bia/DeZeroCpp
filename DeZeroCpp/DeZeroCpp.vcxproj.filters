@@ -105,6 +105,15 @@
     <ClCompile Include="steps\step24.cpp">
       <Filter>ソース ファイル\steps</Filter>
     </ClCompile>
+    <ClCompile Include="steps\step25.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
+    <ClCompile Include="steps\step26.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
+    <ClCompile Include="dezero\utils.cpp">
+      <Filter>ソース ファイル\dezero</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\dezero.hpp">
@@ -114,6 +123,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="dezero\core_simple.hpp">
+      <Filter>ヘッダー ファイル\dezero</Filter>
+    </ClInclude>
+    <ClInclude Include="dezero\utils.hpp">
       <Filter>ヘッダー ファイル\dezero</Filter>
     </ClInclude>
   </ItemGroup>

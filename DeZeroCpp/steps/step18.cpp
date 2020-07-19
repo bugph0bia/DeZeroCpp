@@ -399,7 +399,7 @@ void step18()
 
 	// no_gradのためのスコープ
 	{
-		no_grad with();
+		no_grad with;
 
 		auto x = as_variable(as_array(2.0));
 		auto y = square(x);

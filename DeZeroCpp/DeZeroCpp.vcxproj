@@ -92,6 +92,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Lib\NumCpp-Version_2.0.0\include;C:\Lib\boost_1_73_0;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +126,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Lib\NumCpp-Version_2.0.0\include;C:\Lib\boost_1_73_0;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dezero\core_simple.cpp" />
+    <ClCompile Include="dezero\utils.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -183,10 +186,13 @@
     <ClCompile Include="steps\step22.cpp" />
     <ClCompile Include="steps\step23.cpp" />
     <ClCompile Include="steps\step24.cpp" />
+    <ClCompile Include="steps\step25.cpp" />
+    <ClCompile Include="steps\step26.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\core_simple.hpp" />
     <ClInclude Include="dezero\dezero.hpp" />
+    <ClInclude Include="dezero\utils.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

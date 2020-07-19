@@ -69,14 +69,7 @@ std::ostream& operator<<(std::ostream& ost, const Variable& v)
 	if (str.back() == '\n') str.pop_back();
 
 	// 途中の改行にインデントを追加
-	std::string str_s = "\n";
-	std::string str_r = "\n          ";
-	std::string::size_type Pos(str.find(str_s));
-	while (Pos != std::string::npos)
-	{
-		str.replace(Pos, str_s.length(), str_r);
-		Pos = str.find(str_s, Pos + str_r.length());
-	}
+	str = replace_all(str, "\n", "\n          ");
 
 	ost << "variable(" << str << ")";
 	return ost;

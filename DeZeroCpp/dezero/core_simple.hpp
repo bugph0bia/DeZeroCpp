@@ -1,14 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <cassert>
-#include <cmath>
-#include <string>
-#include <list>
-#include <vector>
-#include <set>
-#include <map>
-#include "NumCpp.hpp"
+#include "dezero.hpp"
 
 namespace dz
 {
