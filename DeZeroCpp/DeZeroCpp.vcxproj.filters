@@ -102,6 +102,9 @@
     <ClCompile Include="dezero\core_simple.cpp">
       <Filter>ソース ファイル\dezero</Filter>
     </ClCompile>
+    <ClCompile Include="steps\step24.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\dezero.hpp">
