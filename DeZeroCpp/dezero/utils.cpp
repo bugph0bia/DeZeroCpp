@@ -162,4 +162,15 @@ void plot_dot_graph(const VariablePtr& output, bool verbose /*=true*/, const std
 	std::system(cmd.c_str());
 }
 
+// 階乗
+double factorial(uint32_t x)
+{
+	// 32bit整数ではオーバーフローするのでdoubleとする
+	double y = 1.0;
+	for (; x > 0; x--) {
+		y *= static_cast<double>(x);
+	}
+	return y;
+}
+
 }	//namespace dz
