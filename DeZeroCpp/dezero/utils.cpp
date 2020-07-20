@@ -162,20 +162,4 @@ void plot_dot_graph(const VariablePtr& output, bool verbose /*=true*/, const std
 	std::system(cmd.c_str());
 }
 
-uint32_t factorial(uint32_t x)
-{
-	// 再帰するとスタックオーバーフローするためループで実装する
-
-	//if (x == 0) return 1;
-	//else return factorial(x - 1);
-
-	// TODO: y が大きくなりすぎる
-
-	uint32_t y = 1;
-	for (; x >= 1; x--) {
-		y *= x;
-	}
-	return y;
-}
-
 }	//namespace dz

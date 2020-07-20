@@ -34,13 +34,17 @@ VariablePtr sin(const VariablePtr& x)
 
 VariablePtr my_sin(const VariablePtr& x, double threshold = 0.0001)
 {
-	auto y = as_variable(as_array(0.0));
-	for (int i = 0; i < 100000; i++) {
-		auto c = power(-1.0, i) / factorial(2 * i + 1);
-		auto t = c * power(x, (2 * i + 1));
-		y = y + t;
-		std::cout << t << std::endl;
-		if (std::abs((*(t->data))[0]) < threshold) {
+	// 第1項目（i=0）の値
+	auto y = x;
+	auto term = x;
+	// 第2項目以降
+	for (int i = 1; i < 100000; i++) {
+		// 階乗を使ってしまうとオーバーフローするので
+		// 代わりに1つ前の項の値を利用して計算
+		auto t = std::pow(-1, i) / ((2 * i + 1) * (2 * i));
+		term = t * power(x, 2) * term;
+		y = y + term;
+		if (std::abs((*(term->data))[0]) < threshold) {
 			break;
 		}
 	}
