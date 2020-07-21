@@ -19,9 +19,6 @@
     <Filter Include="ソース ファイル\steps">
       <UniqueIdentifier>{8c542b7d-44b7-4a4d-b7a0-10e2b095f1d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\dezero">
-      <UniqueIdentifier>{9e0f04ec-3ec2-492f-8229-1c3878222f84}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -99,9 +96,6 @@
     <ClCompile Include="steps\step23.cpp">
       <Filter>ソース ファイル\steps</Filter>
     </ClCompile>
-    <ClCompile Include="dezero\core_simple.cpp">
-      <Filter>ソース ファイル\dezero</Filter>
-    </ClCompile>
     <ClCompile Include="steps\step24.cpp">
       <Filter>ソース ファイル\steps</Filter>
     </ClCompile>
@@ -110,9 +104,6 @@
     </ClCompile>
     <ClCompile Include="steps\step26.cpp">
       <Filter>ソース ファイル\steps</Filter>
-    </ClCompile>
-    <ClCompile Include="dezero\utils.cpp">
-      <Filter>ソース ファイル\dezero</Filter>
     </ClCompile>
     <ClCompile Include="steps\step27.cpp">
       <Filter>ソース ファイル\steps</Filter>
