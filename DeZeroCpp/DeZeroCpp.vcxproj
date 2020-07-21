@@ -193,6 +193,7 @@
     <ClCompile Include="steps\step31.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dezero\core.hpp" />
     <ClInclude Include="dezero\core_simple.hpp" />
     <ClInclude Include="dezero\dezero.hpp" />
     <ClInclude Include="dezero\utils.hpp" />

@@ -1,5 +1,11 @@
 #pragma once
 
+//#define IS_SIMPLE_CORE
+
+#ifdef IS_SIMPLE_CORE
+#include "core_simple.hpp"
+#else
+
 #include <cassert>
 #include <iostream>
 #include <fstream>
@@ -82,6 +88,43 @@ inline VariablePtr as_variable(const Variable& data)
 {
 	return std::make_shared<Variable>(data);
 }
+
+//----------------------------------
+// prototype
+//----------------------------------
+
+extern inline VariablePtr add(const VariablePtr& x0, const VariablePtr& x1);
+extern inline VariablePtr sub(const VariablePtr& x0, const VariablePtr& x1);
+extern inline VariablePtr mul(const VariablePtr& x0, const VariablePtr& x1);
+extern inline VariablePtr div(const VariablePtr& x0, const VariablePtr& x1);
+extern inline VariablePtr pos(const VariablePtr& x);
+extern inline VariablePtr neg(const VariablePtr& x);
+extern inline VariablePtr power(const VariablePtr& x0, uint32_t c);
+extern inline VariablePtr power(const NdArrayPtr& x, uint32_t c);
+extern inline VariablePtr power(data_t x, uint32_t c);
+
+extern inline VariablePtr operator+(const VariablePtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator+(const VariablePtr& lhs, const NdArrayPtr& rhs);
+extern inline VariablePtr operator+(const NdArrayPtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator+(const VariablePtr& lhs, data_t rhs);
+extern inline VariablePtr operator+(data_t lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator-(const VariablePtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator-(const VariablePtr& lhs, const NdArrayPtr& rhs);
+extern inline VariablePtr operator-(const NdArrayPtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator-(const VariablePtr& lhs, data_t rhs);
+extern inline VariablePtr operator-(data_t lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator*(const VariablePtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator*(const VariablePtr& lhs, const NdArrayPtr& rhs);
+extern inline VariablePtr operator*(const NdArrayPtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator*(const VariablePtr& lhs, data_t rhs);
+extern inline VariablePtr operator*(data_t lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator/(const VariablePtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator/(const VariablePtr& lhs, const NdArrayPtr& rhs);
+extern inline VariablePtr operator/(const NdArrayPtr& lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator/(const VariablePtr& lhs, data_t rhs);
+extern inline VariablePtr operator/(data_t lhs, const VariablePtr& rhs);
+extern inline VariablePtr operator+(const VariablePtr& data);
+extern inline VariablePtr operator-(const VariablePtr& data);
 
 //----------------------------------
 // class
@@ -173,7 +216,7 @@ public:
 	// –¼Ì
 	std::string name;
 	// Œù”z
-	NdArrayPtr grad;
+	VariablePtr grad;
 	// ¶¬Œ³‚ÌŠÖ”
 	FunctionPtr creator;
 	// ¢‘ã
@@ -277,7 +320,7 @@ public:
 	// ‡“`”d
 	virtual NdArrayPtrList forward(const NdArrayPtrList& xs) = 0;
 	// ‹t“`”d
-	virtual NdArrayPtrList backward(const NdArrayPtrList& gy) = 0;
+	virtual VariablePtrList backward(const VariablePtrList& gy) = 0;
 };
 
 // ¶¬Œ³‚ÌŠÖ”‚ğİ’è
@@ -297,7 +340,7 @@ inline void Variable::backward(bool retain_grad /*=false*/)
 	if (!this->grad) {
 		// Œù”z‚Ì‰Šú’l(1)‚ğİ’è
 		auto g = nc::ones_like<data_t>(*this->data);
-		this->grad = as_array(g);
+		this->grad = as_variable(as_array(g));
 	}
 
 	// ŠÖ”ƒŠƒXƒg
@@ -326,7 +369,7 @@ inline void Variable::backward(bool retain_grad /*=false*/)
 		funcs.pop_back();
 
 		// o—Íƒf[ƒ^‚©‚çŒù”z‚ğæ‚èo‚·
-		auto gys = NdArrayPtrList();
+		auto gys = VariablePtrList();
 		for (const auto& o : f->outputs) {
 			gys.push_back(o.lock()->grad);
 		}
@@ -348,9 +391,9 @@ inline void Variable::backward(bool retain_grad /*=false*/)
 			}
 			// Œù”z‚ªİ’èÏ‚İ‚È‚ç‰ÁZ‚·‚é
 			else {
-				// V‚µ‚¢ NdArrayPtr ƒCƒ“ƒXƒ^ƒ“ƒX‚ğì‚é‚±‚Æ‚ªd—v
+				// V‚µ‚¢ƒCƒ“ƒXƒ^ƒ“ƒX‚ğì‚é‚±‚Æ‚ªd—v
 				// —á‚¦‚ÎA*x->grad += *gx; ‚Æ‚µ‚Ä‚Í‚¢‚¯‚È‚¢i•t˜^AQÆj
-				x->grad = as_array(*x->grad + *gx);
+				x->grad = as_variable(as_array(*x->grad->data + *gx->data));
 			}
 
 			// ‚P‚Â‘O‚ÌŠÖ”‚ğƒŠƒXƒg‚É’Ç‰Á
@@ -382,7 +425,7 @@ public:
 		return { as_array(y) };
 	}
 	// ‹t“`”d
-	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	VariablePtrList backward(const VariablePtrList& gys) override
 	{
 		return { gys[0], gys[0] };
 	}
@@ -401,10 +444,10 @@ public:
 		return { as_array(y) };
 	}
 	// ‹t“`”d
-	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	VariablePtrList backward(const VariablePtrList& gys) override
 	{
-		auto gy = *(gys[0]);
-		return { as_array(gy), as_array(-gy) };
+		auto gy = gys[0];
+		return { gy, -gy };
 	}
 };
 
@@ -421,12 +464,12 @@ public:
 		return { as_array(y) };
 	}
 	// ‹t“`”d
-	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	VariablePtrList backward(const VariablePtrList& gys) override
 	{
-		auto x0 = *(this->inputs[0]->data);
-		auto x1 = *(this->inputs[1]->data);
-		auto gy = *(gys[0]);
-		return { as_array(gy * x1), as_array(gy * x0) };
+		auto x0 = this->inputs[0];
+		auto x1 = this->inputs[1];
+		auto gy = gys[0];
+		return { (gy * x1), (gy * x0) };
 	}
 };
 
@@ -443,13 +486,13 @@ public:
 		return { as_array(y) };
 	}
 	// ‹t“`”d
-	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	VariablePtrList backward(const VariablePtrList& gys) override
 	{
-		auto x0 = *(this->inputs[0]->data);
-		auto x1 = *(this->inputs[1]->data);
-		auto gy = *(gys[0]);
-		auto gx0 = as_array(gy / x1);
-		auto gx1 = as_array(gy * (-x0 / nc::power(x1, 2)));
+		auto x0 = this->inputs[0];
+		auto x1 = this->inputs[1];
+		auto gy = gys[0];
+		auto gx0 = gy / x1;
+		auto gx1 = gy * (-x0 / power(x1, 2));
 		return { gx0, gx1 };
 	}
 };
@@ -466,7 +509,7 @@ public:
 		return { as_array(x) };
 	}
 	// ‹t“`”d
-	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	VariablePtrList backward(const VariablePtrList& gys) override
 	{
 		return gys;
 	}
@@ -483,10 +526,10 @@ public:
 		return { as_array(-x) };
 	}
 	// ‹t“`”d
-	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	VariablePtrList backward(const VariablePtrList& gys) override
 	{
-		auto gy = *(gys[0]);
-		return { as_array(-gy) };
+		auto gy = gys[0];
+		return { -gy };
 	}
 };
 
@@ -507,13 +550,13 @@ public:
 		return { as_array(y) };
 	}
 	// ‹t“`”d
-	NdArrayPtrList backward(const NdArrayPtrList& gys) override
+	VariablePtrList backward(const VariablePtrList& gys) override
 	{
-		auto x = *(this->inputs[0]->data);
-		auto gy = *(gys[0]);
+		auto x = this->inputs[0];
+		auto gy = gys[0];
 		auto c = this->c;
-		auto gx = static_cast<data_t>(c) * nc::power(x, c - 1)  * gy;
-		return { as_array(gx) };
+		auto gx = static_cast<data_t>(c)* power(x, c - 1) * gy;
+		return { gx };
 	}
 };
 
@@ -640,3 +683,5 @@ inline VariablePtr operator+(const VariablePtr& data) { return pos(data); }
 inline VariablePtr operator-(const VariablePtr& data) { return neg(data); }
 
 }	// namespace dezerocpp
+
+#endif	// #ifdef IS_SIMPLE_CORE

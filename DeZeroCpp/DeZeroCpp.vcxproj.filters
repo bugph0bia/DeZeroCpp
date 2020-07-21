@@ -134,5 +134,8 @@
     <ClInclude Include="dezero\utils.hpp">
       <Filter>ヘッダー ファイル\dezero</Filter>
     </ClInclude>
+    <ClInclude Include="dezero\core.hpp">
+      <Filter>ヘッダー ファイル\dezero</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

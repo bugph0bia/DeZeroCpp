@@ -5,7 +5,7 @@
 #include <cmath>
 #include "NumCpp.hpp"
 
-#include "core_simple.hpp"
+#include "core.hpp"
 
 namespace dz
 {
