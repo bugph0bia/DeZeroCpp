@@ -14,27 +14,25 @@ VariablePtr rosenbrock(const VariablePtr& x0, const VariablePtr& x1)
 
 void step28()
 {
-	{
-		auto x0 = as_variable(as_array(0.0));
-		auto x1 = as_variable(as_array(2.0));
+	auto x0 = as_variable(as_array(0.0));
+	auto x1 = as_variable(as_array(2.0));
 
-		// ŠwK—¦
-		double lr = 0.001;
-		// ŒJ‚è•Ô‚µ‰ñ”
-		int iters = 1000;
+	// ŠwK—¦
+	double lr = 0.001;
+	// ŒJ‚è•Ô‚µ‰ñ”
+	int iters = 1000;
 
-		for (int i = 0; i < iters; i++) {
-			std::cout << x0 << " " << x1 << std::endl;
+	for (int i = 0; i < iters; i++) {
+		std::cout << x0 << " " << x1 << std::endl;
 
-			auto y = rosenbrock(x0, x1);
+		auto y = rosenbrock(x0, x1);
 
-			x0->cleargrad();
-			x1->cleargrad();
-			y->backward();
+		x0->cleargrad();
+		x1->cleargrad();
+		y->backward();
 
-			*(x0->data) -= lr * *(x0->grad);
-			*(x1->data) -= lr * *(x1->grad);
-		}
+		*(x0->data) -= lr * *(x0->grad);
+		*(x1->data) -= lr * *(x1->grad);
 	}
 }
 
