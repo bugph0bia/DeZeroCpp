@@ -236,7 +236,7 @@ public:
 	void set_creator(const FunctionPtr& func);
 
 	// 逆伝播(再帰)
-	void backward(bool retain_grad = false);
+	void backward(bool retain_grad = false, bool create_graph = false);
 
 	// 微分を初期化
 	void cleargrad() {
@@ -334,7 +334,7 @@ inline void Variable::set_creator(const FunctionPtr& func)
 
 // 逆伝播
 // 内部で Function クラスのメンバを参照しているためこの位置で定義する必要がある
-inline void Variable::backward(bool retain_grad /*=false*/)
+inline void Variable::backward(bool retain_grad /*=false*/, bool create_graph /*=false*/)
 {
 	// 勾配が未設定＝逆伝播の開始点
 	if (!this->grad) {
@@ -374,31 +374,36 @@ inline void Variable::backward(bool retain_grad /*=false*/)
 			gys.push_back(o.lock()->grad);
 		}
 
-		// 逆伝播
-		auto gxs = f->backward(gys);
+		{
+			// このスコープの中だけ設定変更
+			UsingConfig with("eneble_backprop", create_graph);
 
-		// 入力データと算出した勾配の要素数は一致する必要あり
-		assert(f->inputs.size() == gxs.size());
+			// 逆伝播
+			auto gxs = f->backward(gys);
 
-		// 入力データと勾配のペアをループ
-		for (size_t i = 0; i < gxs.size(); i++) {
-			auto x = f->inputs[i];
-			auto gx = gxs[i];
+			// 入力データと算出した勾配の要素数は一致する必要あり
+			assert(f->inputs.size() == gxs.size());
 
-			// 勾配が未設定なら代入する
-			if (!x->grad) {
-				x->grad = gx;
-			}
-			// 勾配が設定済みなら加算する
-			else {
-				// 新しいインスタンスを作ることが重要
-				// 例えば、*x->grad += *gx; としてはいけない（付録A参照）
-				x->grad = as_variable(as_array(*x->grad->data + *gx->data));
-			}
+			// 入力データと勾配のペアをループ
+			for (size_t i = 0; i < gxs.size(); i++) {
+				auto x = f->inputs[i];
+				auto gx = gxs[i];
 
-			// １つ前の関数をリストに追加
-			if (x->creator) {
-				add_func(x->creator);
+				// 勾配が未設定なら代入する
+				if (!x->grad) {
+					x->grad = gx;
+				}
+				// 勾配が設定済みなら加算する
+				else {
+					// 新しいインスタンスを作ることが重要
+					// 例えば、*x->grad += *gx; としてはいけない（付録A参照）
+					x->grad = as_variable(as_array(*x->grad->data + *gx->data));
+				}
+
+				// １つ前の関数をリストに追加
+				if (x->creator) {
+					add_func(x->creator);
+				}
 			}
 		}
 
