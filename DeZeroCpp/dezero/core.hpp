@@ -396,8 +396,8 @@ inline void Variable::backward(bool retain_grad /*=false*/, bool create_graph /*
 				// 勾配が設定済みなら加算する
 				else {
 					// 新しいインスタンスを作ることが重要
-					// 例えば、*x->grad += *gx; としてはいけない（付録A参照）
-					x->grad = as_variable(as_array(*x->grad->data + *gx->data));
+					// 例えば、x->grad += gx; としてはいけない（付録A参照）
+					x->grad = x->grad + gx;
 				}
 
 				// １つ前の関数をリストに追加
