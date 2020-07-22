@@ -193,11 +193,13 @@
     <ClCompile Include="steps\step31.cpp" />
     <ClCompile Include="steps\step32.cpp" />
     <ClCompile Include="steps\step33.cpp" />
+    <ClCompile Include="steps\step34.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\core.hpp" />
     <ClInclude Include="dezero\core_simple.hpp" />
     <ClInclude Include="dezero\dezero.hpp" />
+    <ClInclude Include="dezero\functions.hpp" />
     <ClInclude Include="dezero\utils.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

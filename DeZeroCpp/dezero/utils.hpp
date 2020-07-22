@@ -1,11 +1,6 @@
 #pragma once
 
-#include <filesystem>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include "NumCpp.hpp"
-
-#include "core.hpp"
+#include "../dezero/dezero.hpp"
 
 namespace dz
 {

@@ -85,7 +85,7 @@ void step27()
 {
 	{
 		auto x = as_variable(as_array(M_PI / 4));
-		auto y = sin(x);
+		auto y = step27::sin(x);
 		y->backward();
 
 		std::cout << NdArrayPrinter(y->data) << std::endl;

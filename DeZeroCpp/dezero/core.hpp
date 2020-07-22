@@ -1,24 +1,7 @@
 #pragma once
 
-//#define IS_SIMPLE_CORE
 
-#ifdef IS_SIMPLE_CORE
-#include "core_simple.hpp"
-#else
-
-#include <cassert>
-#include <iostream>
-#include <fstream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <string>
-#include <list>
-#include <vector>
-#include <set>
-#include <map>
-#include "NumCpp.hpp"
-
-#include "utils.hpp"
+#include "../dezero/dezero.hpp"
 
 namespace dz
 {
@@ -610,43 +593,64 @@ inline std::ostream& operator<<(std::ostream& ost, const VariablePtr& p)
 // â¡éZ
 inline VariablePtr add(const VariablePtr& x0, const VariablePtr& x1)
 {
-	return (*std::shared_ptr<Function>(new Add()))({ x0, x1 })[0];
+	auto f = FunctionPtr(new Add());
+	VariablePtrList args = { x0, x1 };
+	auto ys = (*f)(args);
+	return ys[0];
 }
 
 // å∏éZ
 inline VariablePtr sub(const VariablePtr& x0, const VariablePtr& x1)
 {
-	return (*std::shared_ptr<Function>(new Sub()))({ x0, x1 })[0];
+	auto f = FunctionPtr(new Sub());
+	VariablePtrList args = { x0, x1 };
+	auto ys = (*f)(args);
+	return ys[0];
 }
 
 // èÊéZ
 inline VariablePtr mul(const VariablePtr& x0, const VariablePtr& x1)
 {
-	return (*std::shared_ptr<Function>(new Mul()))({ x0, x1 })[0];
+	auto f = FunctionPtr(new Mul());
+	VariablePtrList args = { x0, x1 };
+	auto ys = (*f)(args);
+	return ys[0];
 }
 
 // èúéZ
 inline VariablePtr div(const VariablePtr& x0, const VariablePtr& x1)
 {
-	return (*std::shared_ptr<Function>(new Div()))({ x0, x1 })[0];
+	auto f = FunctionPtr(new Div());
+	VariablePtrList args = { x0, x1 };
+	auto ys = (*f)(args);
+	return ys[0];
 }
 
 // ê≥êî
 inline VariablePtr pos(const VariablePtr& x)
 {
-	return (*std::shared_ptr<Function>(new Pos()))({ x })[0];
+	auto f = FunctionPtr(new Pos());
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
 }
 
 // ïâêî
 inline VariablePtr neg(const VariablePtr& x)
 {
-	return (*std::shared_ptr<Function>(new Neg()))({ x })[0];
+	auto f = FunctionPtr(new Neg());
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
 }
 
 // ó›èÊ
-inline VariablePtr power(const VariablePtr& x0, uint32_t c)
+inline VariablePtr power(const VariablePtr& x, uint32_t c)
 {
-	return (*std::shared_ptr<Function>(new Pow(c)))(x0)[0];
+	auto f = FunctionPtr(new Pow(c));
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
 }
 inline VariablePtr power(const NdArrayPtr& x, uint32_t c)
 {
@@ -688,5 +692,3 @@ inline VariablePtr operator+(const VariablePtr& data) { return pos(data); }
 inline VariablePtr operator-(const VariablePtr& data) { return neg(data); }
 
 }	// namespace dezerocpp
-
-#endif	// #ifdef IS_SIMPLE_CORE
