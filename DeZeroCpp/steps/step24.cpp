@@ -34,7 +34,11 @@ void step24()
 		auto z = sphere(x, y);
 		z->backward();
 
+#ifdef IS_SIMPLE_CORE
 		std::cout << NdArrayPrinter(x->grad) << " " << NdArrayPrinter(y->grad) << std::endl;
+#else
+		std::cout << x->grad << " " << y->grad << std::endl;
+#endif	// #ifdef IS_SIMPLE_CORE
 		std::cout << std::endl;
 	}
 	{
@@ -43,7 +47,11 @@ void step24()
 		auto z = matyas(x, y);
 		z->backward();
 
+#ifdef IS_SIMPLE_CORE
 		std::cout << NdArrayPrinter(x->grad) << " " << NdArrayPrinter(y->grad) << std::endl;
+#else
+		std::cout << x->grad << " " << y->grad << std::endl;
+#endif	// #ifdef IS_SIMPLE_CORE
 		std::cout << std::endl;
 	}
 	{
@@ -52,7 +60,11 @@ void step24()
 		auto z = goldstein(x, y);
 		z->backward();
 
+#ifdef IS_SIMPLE_CORE
 		std::cout << NdArrayPrinter(x->grad) << " " << NdArrayPrinter(y->grad) << std::endl;
+#else
+		std::cout << x->grad << " " << y->grad << std::endl;
+#endif	// #ifdef IS_SIMPLE_CORE
 		std::cout << std::endl;
 	}
 }

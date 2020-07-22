@@ -13,7 +13,12 @@ void step23()
 	y->backward();
 
 	std::cout << y << std::endl;
+
+#ifdef IS_SIMPLE_CORE
 	std::cout << NdArrayPrinter(x->grad) << std::endl;
+#else
+	std::cout << x->grad << std::endl;
+#endif	// #ifdef IS_SIMPLE_CORE
 }
 
 }

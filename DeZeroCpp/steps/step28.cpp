@@ -31,8 +31,13 @@ void step28()
 		x1->cleargrad();
 		y->backward();
 
+#ifdef IS_SIMPLE_CORE
 		*(x0->data) -= lr * *(x0->grad);
 		*(x1->data) -= lr * *(x1->grad);
+#else
+		*(x0->data) -= lr * *(x0->grad->data);
+		*(x1->data) -= lr * *(x1->grad->data);
+#endif	// #ifdef IS_SIMPLE_CORE
 	}
 }
 

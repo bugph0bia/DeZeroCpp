@@ -17,6 +17,7 @@ public:
 		auto y = nc::sin(x);
 		return { as_array(y) };
 	}
+#ifdef IS_SIMPLE_CORE
 	// ‹t“`”d
 	NdArrayPtrList backward(const NdArrayPtrList& gys) override
 	{
@@ -25,6 +26,16 @@ public:
 		auto gx = gy * nc::cos(x);
 		return { as_array(gx) };
 	}
+#else
+	// ‹t“`”d
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto gy = gys[0];
+		auto x = this->inputs[0];
+		auto gx = *gy->data * nc::cos(*x->data);
+		return { as_variable(as_array(gx)) };
+	}
+#endif	// #ifdef IS_SIMPLE_CORE
 };
 
 VariablePtr sin(const VariablePtr& x)
@@ -78,7 +89,11 @@ void step27()
 		y->backward();
 
 		std::cout << NdArrayPrinter(y->data) << std::endl;
+#ifdef IS_SIMPLE_CORE
 		std::cout << NdArrayPrinter(x->grad) << std::endl;
+#else
+		std::cout << x->grad << std::endl;
+#endif	// #ifdef IS_SIMPLE_CORE
 		std::cout << std::endl;
 	}
 	{
@@ -87,7 +102,11 @@ void step27()
 		y->backward();
 
 		std::cout << NdArrayPrinter(y->data) << std::endl;
+#ifdef IS_SIMPLE_CORE
 		std::cout << NdArrayPrinter(x->grad) << std::endl;
+#else
+		std::cout << x->grad << std::endl;
+#endif	// #ifdef IS_SIMPLE_CORE
 		std::cout << std::endl;
 
 		x->name = "x";
