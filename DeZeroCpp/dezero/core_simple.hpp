@@ -528,7 +528,7 @@ inline std::ostream& operator<<(std::ostream& ost, const NdArrayPrinter& nda)
 	// NdArrayがスカラーなら中身のデータを標準出力へ
 	else if (nda.data->shape().rows == 1 && nda.data->shape().cols == 1) ost << (*nda.data)[0];
 	// 通常時
-	else ost << nda.data;
+	else ost << *(nda.data);
 	return ost;
 }
 
