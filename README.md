@@ -16,7 +16,7 @@ Windows 上で Visual Studio 2017 以降を使用する。
 |------------|-------------------------------------------------------------------------------------------------|
 | Python 3   | C++ (MSVC)                                                                                      |
 | NumPy      | [NumCpp](https://github.com/dpilger26/NumCpp) (v2.00) + [boost](https://www.boost.org/) (v1.73) |
-| Matplotlib | 未定。                                                                                          |
+| matplotlib | [matplotlib-cpp](https://github.com/lava/matplotlib-cpp) ※対応保留中                           |
 | CuPy       | 未定。多分 GUI 対応は不可能。                                                                   |
 | Pillow     | 未定                                                                                            |
 | Graphviz   | Graphviz                                                                                        |
@@ -268,7 +268,7 @@ Windows 上で Visual Studio 2017 以降を使用する。
 
 ### 中間検討
 - `inline` と `static` を適切に指定することで、ヘッダーオンリーにできた。
-- `std::Tuple` や `std::apply` や、C++17 で導入された機能を使うことでタプルと変数の行き来を自然に行うことができ、よりサンプルコードに近づくことができるかもしれないが、実装までは行っていない。
+- `std::tuple` や `std::apply` や、C++17 で導入された機能を使うことでタプルと変数の行き来を自然に行うことができ、よりサンプルコードに近づくことができるかもしれないが、実装までは行っていない。
 
 ### ステップ 29：ニュートン法を用いた最適化（手計算）
 - 特になし。
@@ -292,4 +292,4 @@ Windows 上で Visual Studio 2017 以降を使用する。
 ### ステップ 34：sin 関数の高階微分
 - その他
     - ライブラリのヘッダファイルのインクルード順が重要になるので、全て dezero.hpp に集約して、どのファイルも dezero.hpp をインクルードするようにした。
-
+    - matplotlib でのグラフ描画は、matplotlib-cpp を使わせてもらうかと思ったが、うまく動作させることができず一旦保留。

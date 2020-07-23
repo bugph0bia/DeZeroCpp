@@ -11,6 +11,7 @@
 #include <vector>
 #include <set>
 #include <map>
+
 #include "NumCpp.hpp"
 
 //#define IS_SIMPLE_CORE
