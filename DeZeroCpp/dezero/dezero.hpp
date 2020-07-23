@@ -15,7 +15,6 @@
 #include "NumCpp.hpp"
 
 //#define IS_SIMPLE_CORE
-
 #ifdef IS_SIMPLE_CORE
 #include "core_simple.hpp"
 #else
@@ -24,5 +23,3 @@
 
 #include "functions.hpp"
 #include "utils.hpp"
-
-

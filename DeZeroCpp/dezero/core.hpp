@@ -30,17 +30,6 @@ using VariablePtrList = std::vector<VariablePtr>;
 using VariableWPtrList = std::vector<VariableWPtr>;
 
 // NdArrayPtr生成関数
-extern NdArrayPtr as_array(nullptr_t = nullptr);
-extern NdArrayPtr as_array(std::initializer_list<NdArray::value_type> list);
-extern NdArrayPtr as_array(NdArray::value_type scalar);
-extern NdArrayPtr as_array(const NdArray& data);
-
-// VariablePtr生成関数
-extern VariablePtr as_variable(nullptr_t = nullptr);
-extern VariablePtr as_variable(const NdArrayPtr& data);
-extern VariablePtr as_variable(const Variable& data);
-
-// NdArrayPtr生成関数
 inline NdArrayPtr as_array(nullptr_t /*=nullptr*/)
 {
 	return NdArrayPtr();	// 引数なしまたは nullptr の場合は Empty とする
@@ -108,6 +97,12 @@ extern inline VariablePtr operator/(const VariablePtr& lhs, data_t rhs);
 extern inline VariablePtr operator/(data_t lhs, const VariablePtr& rhs);
 extern inline VariablePtr operator+(const VariablePtr& data);
 extern inline VariablePtr operator-(const VariablePtr& data);
+
+extern inline VariablePtr sin(const VariablePtr& x);
+extern inline VariablePtr cos(const VariablePtr& x);
+extern inline VariablePtr tanh(const VariablePtr& x);
+extern inline VariablePtr reshape(const VariablePtr& x, const nc::Shape& shape);
+extern inline VariablePtr transpose(const VariablePtr& x);
 
 //----------------------------------
 // class
@@ -191,7 +186,7 @@ public:
 };
 
 // 変数クラス
-class Variable
+class Variable : public std::enable_shared_from_this<Variable>
 {
 public:
 	// 内部データ
@@ -226,9 +221,11 @@ public:
 		this->grad = nullptr;
 	}
 
-	// NdArrayへ委譲するメンバ
+	// 同名の別関数へ委譲してクラスの利便性を高める
 	decltype(auto) shape() { return data->shape(); }
 	decltype(auto) size() { return data->size(); }
+	void reshape(const nc::Shape& shape) { dz::reshape(shared_from_this(), shape); }
+	decltype(auto) transpose() { return dz::transpose(shared_from_this()); }
 };
 
 // 関数クラス
