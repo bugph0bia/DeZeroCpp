@@ -100,12 +100,17 @@ extern inline VariablePtr operator-(const VariablePtr& data);
 extern inline VariablePtr sin(const VariablePtr& x);
 extern inline VariablePtr cos(const VariablePtr& x);
 extern inline VariablePtr tanh(const VariablePtr& x);
+extern inline VariablePtr exp(const VariablePtr& x);
 extern inline VariablePtr reshape(const VariablePtr& x, const nc::Shape& shape);
 extern inline VariablePtr transpose(const VariablePtr& x);
 extern inline VariablePtr sum(const VariablePtr& x, nc::Axis axis = nc::Axis::NONE);
 extern inline VariablePtr broadcast_to(const VariablePtr& x, const nc::Shape& shape);
 extern inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape);
 extern inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W);
+extern inline VariablePtr linear(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b);
+extern inline VariablePtr linear_simple(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b = nullptr);
+extern inline VariablePtr sigmoid(const VariablePtr& x);
+extern inline VariablePtr sigmoid_simple(const VariablePtr& x);
 extern inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& x1);
 
 extern std::string replace_all(const std::string& target_str, const std::string& old_str, const std::string& new_str);
@@ -247,7 +252,7 @@ public:
 	// 出力データ
 	VariableWPtrList outputs;
 	// 世代
-	int generation;
+	int generation = 0;
 
 	// デストラクタ
 	virtual ~Function() {}

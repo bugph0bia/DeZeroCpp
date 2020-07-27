@@ -71,6 +71,27 @@ public:
 	}
 };
 
+// 関数クラス（exp）
+class Exp : public Function
+{
+public:
+	// 順伝播
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		auto y = nc::exp(x);
+		return { as_array(y) };
+	}
+	// 逆伝播
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto y = this->outputs[0].lock();
+		auto gy = gys[0];
+		auto gx = gy * y;
+		return { gx };
+	}
+};
+
 // 関数クラス（reshape）
 class Reshape : public Function
 {
@@ -240,6 +261,61 @@ public:
 	}
 };
 
+// 関数クラス（線形変換/全結合）
+class Linear : public Function
+{
+public:
+	// 順伝播
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		auto W = *(xs[1]);
+		auto y = x.dot(W);
+		if (xs.size() >= 3 && xs[2]) {
+			auto b = *(xs[2]);
+			y = y + b;
+		}
+		return { as_array(y) };
+	}
+	// 逆伝播
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto x = this->inputs[0];
+		auto W = this->inputs[1];
+		auto b = this->inputs[2];
+		auto gy = gys[0];
+		auto gb = as_variable(nullptr);
+		if (b->data) {
+			gb = sum_to(gy, b->shape());
+		}
+		auto gx = matmul(gy, W->transpose());
+		auto gW = matmul(x->transpose(), gy);
+		return { gx, gW, gb };
+	}
+};
+
+// 関数クラス（シグモイド）
+class Sigmoid : public Function
+{
+public:
+	// 順伝播
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		//auto y = 1.0 / (1.0 + nc::exp(x));
+		auto y = nc::tanh(x * 0.5) * 0.5 + 0.5;	// より良い実装方法
+		return { as_array(y) };
+	}
+	// 逆伝播
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto y = this->outputs[0].lock();
+		auto gy = gys[0];
+		auto gx = gy * y * (1.0 - y);
+		return { gx };
+	}
+};
+
 // 関数クラス（平均二乗誤差）
 class MeanSquaredError : public Function
 {
@@ -293,6 +369,15 @@ inline VariablePtr cos(const VariablePtr& x)
 inline VariablePtr tanh(const VariablePtr& x)
 {
 	auto f = FunctionPtr(new Tanh());
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// exp
+inline VariablePtr exp(const VariablePtr& x)
+{
+	auto f = FunctionPtr(new Exp());
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -362,6 +447,42 @@ inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W)
 	VariablePtrList args = { x, W };
 	auto ys = (*f)(args);
 	return ys[0];
+}
+
+// linear
+inline VariablePtr linear(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b)
+{
+	auto f = FunctionPtr(new Linear());
+	VariablePtrList args = { x, W, b };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// linear 簡易版
+inline VariablePtr linear_simple(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b /*=nullptr*/)
+{
+	auto t = matmul(x, W);
+	if (!b) return t;
+
+	auto y = t + b;
+	t->data = nullptr;	// tのデータは不要なので消去
+	return y;
+}
+
+// sigmoid
+inline VariablePtr sigmoid(const VariablePtr& x)
+{
+	auto f = FunctionPtr(new Sigmoid());
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// sigmoid 簡易版
+inline VariablePtr sigmoid_simple(const VariablePtr& x)
+{
+	auto y = 1.0 / (1.0 + exp(-x));
+	return y;
 }
 
 // mean_squared_error
