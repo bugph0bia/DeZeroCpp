@@ -216,6 +216,30 @@ public:
 	}
 };
 
+// ŠÖ”ƒNƒ‰ƒXimatmulj
+class MatMul : public Function
+{
+public:
+	// ‡“`”d
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		auto W = *(xs[1]);
+		auto y = x.dot(W);
+		return { as_array(y) };
+	}
+	// ‹t“`”d
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto x = this->inputs[0];
+		auto W = this->inputs[1];
+		auto gy = gys[0];
+		auto gx = matmul(gy, W->transpose());
+		auto gW = matmul(x->transpose(), gy);
+		return { gx, gW };
+	}
+};
+
 //----------------------------------
 // function
 //----------------------------------
@@ -300,6 +324,15 @@ inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape)
 	}
 	auto f = FunctionPtr(new SumTo(shape));
 	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// matmul
+inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W)
+{
+	auto f = FunctionPtr(new MatMul());
+	VariablePtrList args = { x, W };
 	auto ys = (*f)(args);
 	return ys[0];
 }

@@ -105,6 +105,7 @@ extern inline VariablePtr transpose(const VariablePtr& x);
 extern inline VariablePtr sum(const VariablePtr& x, nc::Axis axis = nc::Axis::NONE);
 extern inline VariablePtr broadcast_to(const VariablePtr& x, const nc::Shape& shape);
 extern inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape);
+extern inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W);
 
 extern std::string replace_all(const std::string& target_str, const std::string& old_str, const std::string& new_str);
 extern inline NdArray broadcast_to(const NdArray& in_array, const nc::Shape& shape);

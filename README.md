@@ -331,3 +331,6 @@ Windows 上で Visual Studio 2017 以降を使用する。
     - forward 関数で行う四則演算の直前で、broadcast_mutual 関数を実行するようにした。
     - backward 関数はサンプルコードの通り。
 
+### ステップ 41：行列の積
+- 特になし。
+
