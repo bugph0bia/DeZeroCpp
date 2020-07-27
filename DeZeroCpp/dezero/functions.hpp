@@ -240,6 +240,33 @@ public:
 	}
 };
 
+// ŠÖ”ƒNƒ‰ƒXi•½‹Ï“ñæŒë·j
+class MeanSquaredError : public Function
+{
+public:
+	// ‡“`”d
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x0 = *(xs[0]);
+		auto x1 = *(xs[1]);
+		auto diff = x0 - x1;
+		auto y = nc::power(diff, 2).sum() / static_cast<data_t>(diff.size());
+		return { as_array(y) };
+	}
+	// ‹t“`”d
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto x0 = this->inputs[0];
+		auto x1 = this->inputs[1];
+		auto gy = gys[0];
+		auto diff = x0 - x1;
+		gy = broadcast_to(gy, diff->shape());
+		auto gx0 = gy * diff * (2.0 / diff->size());
+		auto gx1 = -gx0;
+		return { gx0, gx1 };
+	}
+};
+
 //----------------------------------
 // function
 //----------------------------------
@@ -333,6 +360,15 @@ inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W)
 {
 	auto f = FunctionPtr(new MatMul());
 	VariablePtrList args = { x, W };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// mean_squared_error
+inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& x1)
+{
+	auto f = FunctionPtr(new MeanSquaredError());
+	VariablePtrList args = { x0, x1 };
 	auto ys = (*f)(args);
 	return ys[0];
 }

@@ -203,6 +203,7 @@
     <ClCompile Include="steps\step39.cpp" />
     <ClCompile Include="steps\step40.cpp" />
     <ClCompile Include="steps\step41.cpp" />
+    <ClCompile Include="steps\step42.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\core.hpp" />
