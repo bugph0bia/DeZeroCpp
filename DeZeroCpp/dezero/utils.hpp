@@ -33,6 +33,97 @@ inline double factorial(uint32_t x)
 	return y;
 }
 
+// NdArray用の broadcast_to
+// ※NdArrayは行列に次元固定されているため、それを前提とした簡易処理とする
+inline NdArray broadcast_to(const NdArray& in_array, const nc::Shape& shape)
+{
+	// ブロードキャスト可能かチェック
+	//assert(in_array.shape().rows == 1 || in_array.shape().rows == shape.rows);
+	//assert(in_array.shape().cols == 1 || in_array.shape().cols == shape.cols);
+
+	NdArray out_array;
+
+	// スカラーをブロードキャスト
+	if (in_array.shape().rows == 1 && in_array.shape().cols == 1) {
+		// スカラーの値で全要素を埋める
+		out_array = NdArray(shape).fill(0);
+		out_array.fill(in_array[0]);
+	}
+	// 行方向のブロードキャスト
+	else if (in_array.shape().rows == 1) {
+		// 入力データの行方向のベクトルを取得
+		std::vector<data_t> row_vec = in_array.toStlVector();
+		// ブロードキャストして行列に拡張
+		std::vector<std::vector<data_t>> mat;
+		for (uint32_t i = 0; i < shape.rows; i++) mat.push_back(row_vec);
+		out_array = NdArray(mat);
+	}
+	// 列方向のブロードキャスト
+	else if (in_array.shape().rows == 1) {
+		// 入力データの列方向のベクトルを取得
+		std::vector<data_t> col_vec = in_array.transpose().toStlVector();
+		// 行方向にブロードキャストして行列に拡張してから転地する
+		std::vector<std::vector<data_t>> mat;
+		for (uint32_t i = 0; i < shape.cols; i++) mat.push_back(col_vec);
+		out_array = NdArray(mat).transpose();
+	}
+	else {
+		// ブロードキャスト不可（不要）の場合は変換しない
+		out_array = in_array;
+	}
+
+	return out_array;
+}
+
+// NdArray用の sum_to
+// ※NdArrayは行列に次元固定されているためその前提の処理とする
+inline NdArray sum_to(const NdArray& in_array, const nc::Shape& shape)
+{
+	// 計算可能かチェック
+	assert(shape.rows == 1 || in_array.shape().rows == shape.rows);
+	assert(shape.cols == 1 || in_array.shape().cols == shape.cols);
+
+	NdArray out_array;
+
+	// スカラーへ合計
+	if (shape.rows == 1 && shape.cols == 1) {
+		out_array = in_array.sum();
+	}
+	// 行方向の合計
+	else if (shape.rows == 1) {
+		out_array = NdArray(shape).fill(0);
+		// 全行ループ
+		for (uint32_t r = 0; r < in_array.shape().rows; r++) {
+			// 1行ずつ加算する
+			out_array += in_array(r, in_array.cSlice());
+		}
+	}
+	// 列方向の合計
+	else if (shape.cols == 1) {
+		out_array = NdArray(shape).fill(0);
+		// 全行ループ
+		for (uint32_t c = 0; c < in_array.shape().cols; c++) {
+			// 1列ずつ加算する
+			out_array += in_array(in_array.rSlice(), c);
+		}
+	}
+	else {
+		out_array = in_array;
+	}
+
+	return out_array;
+}
+
+// 2つの NdArray を相互的にブロードキャストする
+// ※NdArrayは四則演算の際などに自動的にブロードキャストが行われないため明示的にこの関数を利用する
+inline void broadcast_mutual(NdArray& a0, NdArray& a1)
+{
+	auto a0_shape = a0.shape();
+	auto a1_shape = a1.shape();
+	a0 = broadcast_to(a0, a1_shape);
+	a1 = broadcast_to(a1, a0_shape);
+}
+
 //----------------------------------
 // DOT Language
 //----------------------------------

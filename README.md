@@ -316,3 +316,18 @@ Windows 上で Visual Studio 2017 以降を使用する。
 - その他
     - `NdArray::shape` 関数を変数と誤解してしまうことが多いので注意する。
 
+### ステップ 39：和を求める関数
+- Sum クラス
+    - axis は nc::Axis をそのまま利用。
+    - NdArray は行列（２階テンソル）の形状で固定的に使用するため、keepdims は実装不可。
+    - broadcast_to 関数はステップ 40 で実装。
+
+### ステップ 40：ブロードキャストを行う関数
+- broadcast_to, sum_to 関数（NdArray 用）
+    - NdArray にはこれらの関数が用意されていないので、utils.hpp 内に独自実装する。NdArray が行列固定であることを前提にした簡易的な実装とした。
+- broadcast_mutual 関数
+    - NdArray は四則演算の際などに自動的にブロードキャストが行われないので、専用の関数を用意して対応する。
+- Add, Sub, Mul, Div クラス
+    - forward 関数で行う四則演算の直前で、broadcast_mutual 関数を実行するようにした。
+    - backward 関数はサンプルコードの通り。
+

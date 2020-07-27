@@ -122,6 +122,100 @@ public:
 	}
 };
 
+// 関数クラス（sum）
+class Sum : public Function
+{
+public:
+	// 軸方向
+	nc::Axis axis;
+	// 入力データの元の形状
+	nc::Shape x_shape;
+
+	// コンストラクタ
+	Sum(nc::Axis axis) :
+		axis(axis)
+	{}
+
+	// 順伝播
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		this->x_shape = x.shape();
+		auto y = x.sum(this->axis);
+		return { as_array(y) };
+	}
+	// 逆伝播
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto gy = gys[0];
+		//gy = reshape_sum_backward(gy, this->x_shape, this->axis);	// NdArrayは次元数固定なので不要
+		auto gx = broadcast_to(gy, this->x_shape);
+		return { gx };
+	}
+};
+
+// 関数クラス（broadcast_to）
+class BroadcastTo : public Function
+{
+public:
+	// 形状
+	nc::Shape shape;
+	// 入力データの元の形状
+	nc::Shape x_shape;
+
+	// コンストラクタ
+	BroadcastTo(const nc::Shape& shape) :
+		shape(shape)
+	{}
+
+	// 順伝播
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		this->x_shape = x.shape();
+		auto y = broadcast_to(x, this->shape);
+		return { as_array(y) };
+	}
+	// 逆伝播
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto gy = gys[0];
+		auto gx = sum_to(gy, this->x_shape);
+		return { gx };
+	}
+};
+
+// 関数クラス（sum_to）
+class SumTo : public Function
+{
+public:
+	// 形状
+	nc::Shape shape;
+	// 入力データの元の形状
+	nc::Shape x_shape;
+
+	// コンストラクタ
+	SumTo(const nc::Shape& shape) :
+		shape(shape)
+	{}
+
+	// 順伝播
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		this->x_shape = x.shape();
+		auto y = sum_to(x, this->shape);
+		return { as_array(y) };
+	}
+	// 逆伝播
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto gy = gys[0];
+		auto gx = broadcast_to(gy, this->x_shape);
+		return { gx };
+	}
+};
+
 //----------------------------------
 // function
 //----------------------------------
@@ -170,6 +264,41 @@ inline VariablePtr reshape(const VariablePtr& x, const nc::Shape& shape)
 inline VariablePtr transpose(const VariablePtr& x)
 {
 	auto f = FunctionPtr(new Transpose());
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// sum
+inline VariablePtr sum(const VariablePtr& x, nc::Axis axis /*=nc::Axis::NONE*/)
+{
+	auto f = FunctionPtr(new Sum(axis));
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// bloadcast_to
+inline VariablePtr broadcast_to(const VariablePtr& x, const nc::Shape& shape)
+{
+	// 形状が変わらないのであればそのまま返す
+	if (x->data->shape() == shape) {
+		return as_variable(*x);
+	}
+	auto f = FunctionPtr(new BroadcastTo(shape));
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+
+// bloadcast_to
+inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape)
+{
+	// 形状が変わらないのであればそのまま返す
+	if (x->data->shape() == shape) {
+		return as_variable(*x);
+	}
+	auto f = FunctionPtr(new SumTo(shape));
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];

@@ -64,7 +64,6 @@ inline VariablePtr as_variable(const Variable& data)
 //----------------------------------
 // prototype
 //----------------------------------
-
 extern inline VariablePtr add(const VariablePtr& x0, const VariablePtr& x1);
 extern inline VariablePtr sub(const VariablePtr& x0, const VariablePtr& x1);
 extern inline VariablePtr mul(const VariablePtr& x0, const VariablePtr& x1);
@@ -103,6 +102,14 @@ extern inline VariablePtr cos(const VariablePtr& x);
 extern inline VariablePtr tanh(const VariablePtr& x);
 extern inline VariablePtr reshape(const VariablePtr& x, const nc::Shape& shape);
 extern inline VariablePtr transpose(const VariablePtr& x);
+extern inline VariablePtr sum(const VariablePtr& x, nc::Axis axis = nc::Axis::NONE);
+extern inline VariablePtr broadcast_to(const VariablePtr& x, const nc::Shape& shape);
+extern inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape);
+
+extern std::string replace_all(const std::string& target_str, const std::string& old_str, const std::string& new_str);
+extern inline NdArray broadcast_to(const NdArray& in_array, const nc::Shape& shape);
+extern inline NdArray sum_to(const NdArray& in_array, const nc::Shape& shape);
+extern inline void broadcast_mutual(NdArray& a0, NdArray& a1);
 
 //----------------------------------
 // class
@@ -226,6 +233,7 @@ public:
 	decltype(auto) size() { return data->size(); }
 	void reshape(const nc::Shape& shape) { dz::reshape(shared_from_this(), shape); }
 	decltype(auto) transpose() { return dz::transpose(shared_from_this()); }
+	decltype(auto) sum(nc::Axis axis) { return dz::sum(shared_from_this(), axis); }
 };
 
 // 関数クラス
@@ -401,18 +409,38 @@ inline void Variable::backward(bool retain_grad /*=false*/, bool create_graph /*
 class Add : public Function
 {
 public:
+	// 入力データの形状
+	nc::Shape x0_shape;
+	nc::Shape x1_shape;
+
 	// 順伝播
 	NdArrayPtrList forward(const NdArrayPtrList& xs) override
 	{
 		auto x0 = *(xs[0]);
 		auto x1 = *(xs[1]);
+
+		// 入力データの形状を保存
+		x0_shape = x0.shape();
+		x1_shape = x1.shape();
+
+		// NdArrayの四則演算前のブロードキャスト
+		broadcast_mutual(x0, x1);
+
 		auto y = x0 + x1;
 		return { as_array(y) };
 	}
 	// 逆伝播
 	VariablePtrList backward(const VariablePtrList& gys) override
 	{
-		return { gys[0], gys[0] };
+		auto gx0 = gys[0];
+		auto gx1 = gys[0];
+
+		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
+		if (this->x0_shape != this->x1_shape) {
+			gx0 = sum_to(gx0, this->x0_shape);
+			gx1 = sum_to(gx1, this->x1_shape);
+		}
+		return { gx0, gx1 };
 	}
 };
 
@@ -420,19 +448,38 @@ public:
 class Sub : public Function
 {
 public:
+	// 入力データの形状
+	nc::Shape x0_shape;
+	nc::Shape x1_shape;
+
 	// 順伝播
 	NdArrayPtrList forward(const NdArrayPtrList& xs) override
 	{
 		auto x0 = *(xs[0]);
 		auto x1 = *(xs[1]);
+
+		// 入力データの形状を保存
+		x0_shape = x0.shape();
+		x1_shape = x1.shape();
+
+		// NdArrayの四則演算前のブロードキャスト
+		broadcast_mutual(x0, x1);
+
 		auto y = x0 - x1;
 		return { as_array(y) };
 	}
 	// 逆伝播
 	VariablePtrList backward(const VariablePtrList& gys) override
 	{
-		auto gy = gys[0];
-		return { gy, -gy };
+		auto gx0 = gys[0];
+		auto gx1 = -gys[0];
+
+		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
+		if (this->x0_shape != this->x1_shape) {
+			gx0 = sum_to(gx0, this->x0_shape);
+			gx1 = sum_to(gx1, this->x1_shape);
+		}
+		return { gx0, gx1 };
 	}
 };
 
@@ -445,6 +492,10 @@ public:
 	{
 		auto x0 = *(xs[0]);
 		auto x1 = *(xs[1]);
+
+		// NdArrayの四則演算前のブロードキャスト
+		broadcast_mutual(x0, x1);
+
 		auto y = x0 * x1;
 		return { as_array(y) };
 	}
@@ -453,8 +504,15 @@ public:
 	{
 		auto x0 = this->inputs[0];
 		auto x1 = this->inputs[1];
-		auto gy = gys[0];
-		return { (gy * x1), (gy * x0) };
+		auto gx0 = gys[0] * x1;
+		auto gx1 = gys[0] * x0;
+
+		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
+		if (x0->data->shape() != x1->data->shape()) {
+			gx0 = sum_to(gx0, x0->data->shape());
+			gx1 = sum_to(gx1, x1->data->shape());
+		}
+		return { gx0, gx1 };
 	}
 };
 
@@ -467,6 +525,10 @@ public:
 	{
 		auto x0 = *(xs[0]);
 		auto x1 = *(xs[1]);
+
+		// NdArrayの四則演算前のブロードキャスト
+		broadcast_mutual(x0, x1);
+
 		auto y = x0 / x1;
 		return { as_array(y) };
 	}
@@ -478,6 +540,12 @@ public:
 		auto gy = gys[0];
 		auto gx0 = gy / x1;
 		auto gx1 = gy * (-x0 / power(x1, 2));
+
+		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
+		if (x0->data->shape() != x1->data->shape()) {
+			gx0 = sum_to(gx0, x0->data->shape());
+			gx1 = sum_to(gx1, x1->data->shape());
+		}
 		return { gx0, gx1 };
 	}
 };
@@ -559,8 +627,6 @@ inline std::ostream& operator<<(std::ostream& ost, const NdArrayPrinter& nda)
 	else ost << *(nda.data);
 	return ost;
 }
-
-extern std::string replace_all(const std::string& target_str, const std::string& old_str, const std::string& new_str);
 
 inline std::ostream& operator<<(std::ostream& ost, const Variable& v)
 {

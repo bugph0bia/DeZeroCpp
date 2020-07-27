@@ -141,6 +141,12 @@
     <ClCompile Include="steps\step38.cpp">
       <Filter>ソース ファイル\steps</Filter>
     </ClCompile>
+    <ClCompile Include="steps\step39.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
+    <ClCompile Include="steps\step40.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\dezero.hpp">
