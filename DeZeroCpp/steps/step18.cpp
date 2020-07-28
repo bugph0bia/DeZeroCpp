@@ -391,7 +391,7 @@ void step18()
 
 	// UsingConfigのためのスコープ
 	{
-		UsingConfig with("eneble_backprop", false);
+		UsingConfig with("enable_backprop", false);
 
 		auto x = as_variable(as_array(2.0));
 		auto y = square(x);

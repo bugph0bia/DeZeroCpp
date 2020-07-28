@@ -371,7 +371,7 @@ inline void Variable::backward(bool retain_grad /*=false*/, bool create_graph /*
 
 		{
 			// ‚±‚ÌƒXƒR[ƒv‚Ì’†‚¾‚¯Ý’è•ÏX
-			UsingConfig with("eneble_backprop", create_graph);
+			UsingConfig with("enable_backprop", create_graph);
 
 			// ‹t“`”d
 			auto gxs = f->backward(gys);
