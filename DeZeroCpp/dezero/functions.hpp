@@ -273,6 +273,7 @@ public:
 		auto y = x.dot(W);
 		if (xs.size() >= 3 && xs[2]) {
 			auto b = *(xs[2]);
+			broadcast_mutual(y, b);	// NdArrayの四則演算前のブロードキャスト
 			y = y + b;
 		}
 		return { as_array(y) };
