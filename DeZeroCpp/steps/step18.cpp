@@ -77,7 +77,7 @@ private:
 
 public:
 	// 設定値
-	std::map<std::string, bool> param;
+	std::unordered_map<std::string, bool> param;
 
 	// コピー/ムーブ不可
 	Config(const Config&) = delete;

@@ -2,7 +2,7 @@
 
 #include "../dezero/dezero.hpp"
 
-namespace dz
+namespace dz::functions
 {
 
 //----------------------------------
@@ -194,7 +194,7 @@ public:
 	{
 		auto x = *(xs[0]);
 		this->x_shape = x.shape();
-		auto y = broadcast_to(x, this->shape);
+		auto y = utils::broadcast_to(x, this->shape);
 		return { as_array(y) };
 	}
 	// 逆伝播
@@ -225,7 +225,7 @@ public:
 	{
 		auto x = *(xs[0]);
 		this->x_shape = x.shape();
-		auto y = sum_to(x, this->shape);
+		auto y = utils::sum_to(x, this->shape);
 		return { as_array(y) };
 	}
 	// 逆伝播
@@ -273,7 +273,7 @@ public:
 		auto y = x.dot(W);
 		if (xs.size() >= 3 && xs[2]) {
 			auto b = *(xs[2]);
-			broadcast_mutual(y, b);	// NdArrayの四則演算前のブロードキャスト
+			utils::broadcast_mutual(y, b);	// NdArrayの四則演算前のブロードキャスト
 			y = y + b;
 		}
 		return { as_array(y) };
@@ -495,4 +495,4 @@ inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& 
 	return ys[0];
 }
 
-}	// namespace dz
+}	// namespace dz::functions

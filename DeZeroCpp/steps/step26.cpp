@@ -51,7 +51,7 @@ void step26()
 	x->name = "x";
 	y->name = "y";
 	z->name = "z";
-	plot_dot_graph(z, false, "goldstein.png");
+	utils::plot_dot_graph(z, false, "goldstein.png");
 }
 
 }

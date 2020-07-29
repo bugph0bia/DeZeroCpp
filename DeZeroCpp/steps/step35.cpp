@@ -4,13 +4,14 @@
 #include "../dezero/dezero.hpp"
 
 using namespace dz;
+namespace F = functions;
 
 namespace step35 {
 
 void step35()
 {
 	auto x = as_variable(as_array(1.0));
-	auto y = tanh(x);
+	auto y = F::tanh(x);
 	x->name = "x";
 	y->name = "y";
 	y->backward(false, true);
@@ -27,7 +28,7 @@ void step35()
 	std::ostringstream osst;
 	osst << iters + 1;
 	gx->name = "gx" + osst.str();
-	plot_dot_graph(gx, false, "tanh.png");
+	utils::plot_dot_graph(gx, false, "tanh.png");
 }
 
 }

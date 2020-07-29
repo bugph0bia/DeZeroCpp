@@ -4,6 +4,7 @@
 #include "../dezero/dezero.hpp"
 
 using namespace dz;
+namespace F = functions;
 
 namespace step43 {
 
@@ -27,15 +28,15 @@ void step43()
 
 	// ②ニューラルネットワークの推論
 	auto predict = [&](const VariablePtr& x) {
-		auto y = linear(x, W1, b1);
-		y = sigmoid(y);
-		y = linear(y, W2, b2);
+		auto y = F::linear(x, W1, b1);
+		y = F::sigmoid(y);
+		y = F::linear(y, W2, b2);
 		return y;
 	};
 	auto predict_simple = [&](const VariablePtr& x) {
-		auto y = linear_simple(x, W1, b1);
-		y = sigmoid_simple(y);
-		y = linear_simple(y, W2, b2);
+		auto y = F::linear_simple(x, W1, b1);
+		y = F::sigmoid_simple(y);
+		y = F::linear_simple(y, W2, b2);
 		return y;
 	};
 
@@ -46,7 +47,7 @@ void step43()
 	for (int i = 0; i < iters; i++) {
 		auto y_pred = predict(x);
 		//auto y_pred = predict_simple(x);
-		auto loss = mean_squared_error(y, y_pred);
+		auto loss = F::mean_squared_error(y, y_pred);
 
 		W1->cleargrad();
 		b1->cleargrad();

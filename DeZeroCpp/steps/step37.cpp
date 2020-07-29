@@ -4,6 +4,7 @@
 #include "../dezero/dezero.hpp"
 
 using namespace dz;
+namespace F = functions;
 
 namespace step37 {
 
@@ -11,13 +12,13 @@ void step37()
 {
 	{
 		auto x = as_variable(as_array(1.0));
-		auto y = sin(x);
+		auto y = F::sin(x);
 		std::cout << y << std::endl;
 		std::cout << std::endl;
 	}
 	{
 		auto x = as_variable(as_array(NdArray({ {1, 2, 3}, {4, 5, 6} })));
-		auto y = sin(x);
+		auto y = F::sin(x);
 		std::cout << y << std::endl;
 		std::cout << std::endl;
 	}

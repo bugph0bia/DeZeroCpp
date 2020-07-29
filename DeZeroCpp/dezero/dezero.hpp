@@ -10,7 +10,7 @@
 #include <list>
 #include <vector>
 #include <set>
-#include <map>
+#include <unordered_map>
 
 #include "NumCpp.hpp"
 
@@ -22,4 +22,5 @@
 #endif	// #ifdef IS_SIMPLE_CORE
 
 #include "functions.hpp"
+#include "layers.hpp"
 #include "utils.hpp"

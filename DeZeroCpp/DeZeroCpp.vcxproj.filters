@@ -24,6 +24,12 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="steps\step44.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
     <ClCompile Include="steps\step01.cpp">
       <Filter>ソース ファイル\steps</Filter>
     </ClCompile>
@@ -35,9 +41,6 @@
     </ClCompile>
     <ClCompile Include="steps\step04.cpp">
       <Filter>ソース ファイル\steps</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="steps\step05.cpp">
       <Filter>ソース ファイル\steps</Filter>
@@ -174,6 +177,9 @@
       <Filter>ヘッダー ファイル\dezero</Filter>
     </ClInclude>
     <ClInclude Include="dezero\functions.hpp">
+      <Filter>ヘッダー ファイル\dezero</Filter>
+    </ClInclude>
+    <ClInclude Include="dezero\layers.hpp">
       <Filter>ヘッダー ファイル\dezero</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "../dezero/dezero.hpp"
 
 namespace dz
@@ -8,6 +7,7 @@ namespace dz
 
 // クラス前方宣言
 class Variable;
+class Parameter;
 class Function;
 
 //----------------------------------
@@ -19,11 +19,12 @@ using data_t = double;	// TODO: 最終的には float にする
 using NdArray = nc::NdArray<data_t>;
 
 // スマートポインタ型
-using NdArrayPtr = std::shared_ptr<NdArray>;	// インスタンス生成時は std::make_shared<NdArray> 関数を使うこと
-using VariablePtr = std::shared_ptr<Variable>;	// インスタンス生成時は std::make_shared<Variable> 関数を使うこと
+using NdArrayPtr = std::shared_ptr<NdArray>;		// インスタンス生成時は std::make_shared<NdArray> 関数を使うこと
+using VariablePtr = std::shared_ptr<Variable>;		// インスタンス生成時は std::make_shared<Variable> 関数を使うこと
 using VariableWPtr = std::weak_ptr<Variable>;
-using FunctionPtr = std::shared_ptr<Function>;	// 派生クラスのインスタンス生成時は new を使うこと
-												// （make_shared を使うと Function クラスがインスタンス化されてエラーとなる）
+using ParameterPtr = std::shared_ptr<Parameter>;	// インスタンス生成時は std::make_shared<Parameter> 関数を使うこと
+using FunctionPtr = std::shared_ptr<Function>;		// 派生クラスのインスタンス生成時は new を使うこと
+													// （make_shared を使うと Function クラスがインスタンス化されてエラーとなる）
 // リスト型
 using NdArrayPtrList = std::vector<NdArrayPtr>;
 using VariablePtrList = std::vector<VariablePtr>;
@@ -48,7 +49,7 @@ inline NdArrayPtr as_array(const NdArray& data)
 }
 
 // VariablePtr生成関数
-inline VariablePtr as_variable(nullptr_t /*=nullptr*/)
+inline VariablePtr as_variable(nullptr_t = nullptr)
 {
 	return VariablePtr();	// 引数なしまたは nullptr の場合は Empty とする
 }
@@ -97,6 +98,8 @@ extern inline VariablePtr operator/(data_t lhs, const VariablePtr& rhs);
 extern inline VariablePtr operator+(const VariablePtr& data);
 extern inline VariablePtr operator-(const VariablePtr& data);
 
+namespace functions
+{
 extern inline VariablePtr sin(const VariablePtr& x);
 extern inline VariablePtr cos(const VariablePtr& x);
 extern inline VariablePtr tanh(const VariablePtr& x);
@@ -112,11 +115,15 @@ extern inline VariablePtr linear_simple(const VariablePtr& x, const VariablePtr&
 extern inline VariablePtr sigmoid(const VariablePtr& x);
 extern inline VariablePtr sigmoid_simple(const VariablePtr& x);
 extern inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& x1);
+}	// namespace functions
 
+namespace utils
+{
 extern std::string replace_all(const std::string& target_str, const std::string& old_str, const std::string& new_str);
 extern inline NdArray broadcast_to(const NdArray& in_array, const nc::Shape& shape);
 extern inline NdArray sum_to(const NdArray& in_array, const nc::Shape& shape);
 extern inline void broadcast_mutual(NdArray& a0, NdArray& a1);
+}	// namespace utils
 
 //----------------------------------
 // class
@@ -134,7 +141,7 @@ private:
 
 public:
 	// 設定値
-	std::map<std::string, bool> param;
+	std::unordered_map<std::string, bool> param;
 
 	// コピー/ムーブ不可
 	Config(const Config&) = delete;
@@ -230,7 +237,7 @@ public:
 	// 逆伝播(再帰)
 	void backward(bool retain_grad = false, bool create_graph = false);
 
-	// 微分を初期化
+	// 勾配を初期化
 	void cleargrad() {
 		this->grad = nullptr;
 	}
@@ -238,10 +245,30 @@ public:
 	// 同名の別関数へ委譲してクラスの利便性を高める
 	decltype(auto) shape() { return data->shape(); }
 	decltype(auto) size() { return data->size(); }
-	void reshape(const nc::Shape& shape) { dz::reshape(shared_from_this(), shape); }
-	decltype(auto) transpose() { return dz::transpose(shared_from_this()); }
-	decltype(auto) sum(nc::Axis axis) { return dz::sum(shared_from_this(), axis); }
+	void reshape(const nc::Shape& shape) { functions::reshape(shared_from_this(), shape); }
+	decltype(auto) transpose() { return functions::transpose(shared_from_this()); }
+	decltype(auto) sum(nc::Axis axis) { return functions::sum(shared_from_this(), axis); }
 };
+
+// パラメータクラス
+class Parameter : public Variable
+{
+public:
+	// コンストラクタ
+	Parameter(const NdArrayPtr& data, const std::string& name = "") :
+		Variable(data, name)
+	{}
+};
+
+// ParameterPtr生成関数 (基底クラスのVariablePtr型として扱う)
+inline VariablePtr as_parameter(const NdArrayPtr& data)
+{
+	return std::make_shared<Parameter>(data);
+}
+inline VariablePtr as_parameter(const Parameter& data)
+{
+	return std::make_shared<Parameter>(data);
+}
 
 // 関数クラス
 class Function : public std::enable_shared_from_this<Function>
@@ -431,7 +458,7 @@ public:
 		x1_shape = x1.shape();
 
 		// NdArrayの四則演算前のブロードキャスト
-		broadcast_mutual(x0, x1);
+		utils::broadcast_mutual(x0, x1);
 
 		auto y = x0 + x1;
 		return { as_array(y) };
@@ -444,8 +471,8 @@ public:
 
 		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
 		if (this->x0_shape != this->x1_shape) {
-			gx0 = sum_to(gx0, this->x0_shape);
-			gx1 = sum_to(gx1, this->x1_shape);
+			gx0 = functions::sum_to(gx0, this->x0_shape);
+			gx1 = functions::sum_to(gx1, this->x1_shape);
 		}
 		return { gx0, gx1 };
 	}
@@ -470,7 +497,7 @@ public:
 		x1_shape = x1.shape();
 
 		// NdArrayの四則演算前のブロードキャスト
-		broadcast_mutual(x0, x1);
+		utils::broadcast_mutual(x0, x1);
 
 		auto y = x0 - x1;
 		return { as_array(y) };
@@ -483,8 +510,8 @@ public:
 
 		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
 		if (this->x0_shape != this->x1_shape) {
-			gx0 = sum_to(gx0, this->x0_shape);
-			gx1 = sum_to(gx1, this->x1_shape);
+			gx0 = functions::sum_to(gx0, this->x0_shape);
+			gx1 = functions::sum_to(gx1, this->x1_shape);
 		}
 		return { gx0, gx1 };
 	}
@@ -501,7 +528,7 @@ public:
 		auto x1 = *(xs[1]);
 
 		// NdArrayの四則演算前のブロードキャスト
-		broadcast_mutual(x0, x1);
+		utils::broadcast_mutual(x0, x1);
 
 		auto y = x0 * x1;
 		return { as_array(y) };
@@ -516,8 +543,8 @@ public:
 
 		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
 		if (x0->data->shape() != x1->data->shape()) {
-			gx0 = sum_to(gx0, x0->data->shape());
-			gx1 = sum_to(gx1, x1->data->shape());
+			gx0 = functions::sum_to(gx0, x0->data->shape());
+			gx1 = functions::sum_to(gx1, x1->data->shape());
 		}
 		return { gx0, gx1 };
 	}
@@ -534,7 +561,7 @@ public:
 		auto x1 = *(xs[1]);
 
 		// NdArrayの四則演算前のブロードキャスト
-		broadcast_mutual(x0, x1);
+		utils::broadcast_mutual(x0, x1);
 
 		auto y = x0 / x1;
 		return { as_array(y) };
@@ -550,8 +577,8 @@ public:
 
 		// 順伝播でブロードキャストが発生している場合は、ブロードキャストの逆伝播を行う
 		if (x0->data->shape() != x1->data->shape()) {
-			gx0 = sum_to(gx0, x0->data->shape());
-			gx1 = sum_to(gx1, x1->data->shape());
+			gx0 = functions::sum_to(gx0, x0->data->shape());
+			gx1 = functions::sum_to(gx1, x1->data->shape());
 		}
 		return { gx0, gx1 };
 	}
@@ -647,7 +674,7 @@ inline std::ostream& operator<<(std::ostream& ost, const Variable& v)
 	if (str.back() == '\n') str.pop_back();
 
 	// 途中の改行にインデントを追加
-	str = replace_all(str, "\n", "\n          ");
+	str = utils::replace_all(str, "\n", "\n          ");
 
 	ost << "variable(" << str << ")";
 	return ost;

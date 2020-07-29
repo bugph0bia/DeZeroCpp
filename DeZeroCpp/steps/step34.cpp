@@ -4,13 +4,14 @@
 #include "../dezero/dezero.hpp"
 
 using namespace dz;
+namespace F = functions;
 
 namespace step34 {
 
 void step34()
 {
 	auto x = as_variable(as_array(1.0));
-	auto y = sin(x);
+	auto y = F::sin(x);
 	y->backward(false, true);
 
 	for (int i = 0; i < 3; i++) {

@@ -47,7 +47,7 @@ VariablePtr my_sin(const VariablePtr& x, double threshold = 0.0001)
 {
 	auto y = as_variable(as_array(0.0));
 	for (int i = 0; i < 100000; i++) {
-		auto c = std::pow(-1.0, i) / factorial(2 * i + 1);
+		auto c = std::pow(-1.0, i) / utils::factorial(2 * i + 1);
 		auto t = c * power(x, 2 * i + 1);
 		y = y + t;
 		if (std::abs((*(t->data))[0]) < threshold) {
@@ -111,7 +111,7 @@ void step27()
 
 		x->name = "x";
 		y->name = "y";
-		plot_dot_graph(y, false);
+		utils::plot_dot_graph(y, false);
 	}
 }
 

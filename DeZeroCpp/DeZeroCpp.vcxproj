@@ -205,12 +205,14 @@
     <ClCompile Include="steps\step41.cpp" />
     <ClCompile Include="steps\step42.cpp" />
     <ClCompile Include="steps\step43.cpp" />
+    <ClCompile Include="steps\step44.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\core.hpp" />
     <ClInclude Include="dezero\core_simple.hpp" />
     <ClInclude Include="dezero\dezero.hpp" />
     <ClInclude Include="dezero\functions.hpp" />
+    <ClInclude Include="dezero\layers.hpp" />
     <ClInclude Include="dezero\utils.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

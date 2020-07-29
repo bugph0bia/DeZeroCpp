@@ -1,18 +1,6 @@
 #pragma once
 
-#include <cassert>
-#include <iostream>
-#include <fstream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <string>
-#include <list>
-#include <vector>
-#include <set>
-#include <map>
-#include "NumCpp.hpp"
-
-#include "utils.hpp"
+#include "../dezero/dezero.hpp"
 
 namespace dz
 {
@@ -99,7 +87,7 @@ private:
 
 public:
 	// 設定値
-	std::map<std::string, bool> param;
+	std::unordered_map<std::string, bool> param;
 
 	// コピー/ムーブ不可
 	Config(const Config&) = delete;

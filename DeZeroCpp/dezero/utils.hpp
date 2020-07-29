@@ -2,7 +2,7 @@
 
 #include "../dezero/dezero.hpp"
 
-namespace dz
+namespace dz::utils
 {
 
 //----------------------------------
@@ -277,4 +277,4 @@ inline void plot_dot_graph(const VariablePtr& output, bool verbose = true, const
 	std::system(cmd.c_str());
 }
 
-}	// namespace dz
+}	// namespace dz::utils

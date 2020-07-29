@@ -4,6 +4,7 @@
 #include "../dezero/dezero.hpp"
 
 using namespace dz;
+namespace F = functions;
 
 namespace step41 {
 
@@ -26,18 +27,18 @@ void step41()
 	{
 		auto x = as_variable(as_array(nc::random::randN<data_t>({ 2, 3 })));
 		auto W = as_variable(as_array(nc::random::randN<data_t>({ 3, 4 })));
-		auto y = matmul(x, W);
+		auto y = F::matmul(x, W);
 		y->backward();
 
 		std::ostringstream osst;
 
 		osst << x->grad->shape();
-		std::cout << replace_all(osst.str(), "\n", "") << std::endl;
+		std::cout << utils::replace_all(osst.str(), "\n", "") << std::endl;
 		osst.str("");
 		osst.clear();
 
 		osst << W->grad->shape();
-		std::cout << replace_all(osst.str(), "\n", "") << std::endl;
+		std::cout << utils::replace_all(osst.str(), "\n", "") << std::endl;
 		osst.str("");
 		osst.clear();
 

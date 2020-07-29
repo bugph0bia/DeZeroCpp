@@ -4,19 +4,20 @@
 #include "../dezero/dezero.hpp"
 
 using namespace dz;
+namespace F = functions;
 
 namespace step42 {
 
 VariablePtr predict(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b)
 {
-	auto y = matmul(x, W) + b;
+	auto y = F::matmul(x, W) + b;
 	return y;
 }
 
 VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& x1)
 {
 	auto diff = x0 - x1;
-	return sum(power(diff, 2)) / diff->size();
+	return F::sum(power(diff, 2)) / diff->size();
 }
 
 void step42()
@@ -37,7 +38,7 @@ void step42()
 	for (int i = 0; i < iters; i++) {
 		auto y_pred = predict(x, W, b);
 		//auto loss = step42::mean_squared_error(y, y_pred);
-		auto loss = dz::mean_squared_error(y, y_pred);
+		auto loss = F::mean_squared_error(y, y_pred);
 
 		W->cleargrad();
 		b->cleargrad();
