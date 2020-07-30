@@ -50,10 +50,10 @@ void step44()
 
 		auto predict = [&](const VariablePtr& x)
 		{
-			auto y = l1(x)[0];
+			auto y = l1(x);
 			y = F::sigmoid(y);
-			y = l2(y)[0];
-			return y;
+			y = l2(y);
+			return y[0];
 		};
 
 		double lr = 0.2;
@@ -75,6 +75,7 @@ void step44()
 			}
 
 			// 1000‰ñ‚¸‚Âo—Í
+			//if (i % 1000 == 0) {
 			if (i % 100 == 0) {
 				std::cout << loss << std::endl;
 			}

@@ -45,12 +45,21 @@ public:
 	}
 
 	// VariablePtrへのキャスト演算子 (get代理)
-	explicit operator VariablePtr() const noexcept
+	operator VariablePtr() const noexcept
 	{
+		auto v = VariablePtr();
 		if (props.find(key) != props.end())
-			return props[key];
+			v = props[key];
 		else
-			return VariablePtr();
+			assert(false);	// 存在しないプロパティの参照
+
+		return v;
+	}
+
+	// アロー演算子で対象の VariablePtr のメンバを直接操作
+	VariablePtr operator->() const noexcept
+	{
+		return static_cast<VariablePtr>(*this);
 	}
 };
 
@@ -74,6 +83,13 @@ public:
 	// デストラクタ
 	virtual ~Layer() {}
 
+	// プロパティのset/get
+	// []演算子だと this と併用するときに煩雑になるのでこちらを使用すると良い
+	PropProxy prop(const std::string& key)
+	{
+		return (*this)[key];
+	}
+
 	// []演算子：プロパティのset/get
 	PropProxy operator[](const std::string& key)
 	{
@@ -86,15 +102,11 @@ public:
 		// VariantPtrに変換して処理
 		return (*this)(as_variable(input));
 	}
-
-	// ()演算子
 	VariablePtrList operator()(const VariablePtr& input)
 	{
 		// リストに変換して処理
 		return (*this)(VariablePtrList({ input }));
 	}
-
-	// ()演算子
 	VariablePtrList operator()(const VariablePtrList& inputs)
 	{
 		// 順伝播
@@ -156,10 +168,6 @@ public:
 	// 入出力データサイズ
 	uint32_t in_size;
 	uint32_t out_size;
-	// 重み
-	VariablePtr W;
-	// バイアス
-	VariablePtr b;
 
 	// コンストラクタ
 	Linear(uint32_t out_size, uint32_t in_size = 0, bool nobias = false) :
@@ -167,7 +175,7 @@ public:
 		out_size(out_size)
 	{
 		// 重みの初期化
-		this->W = as_parameter(Parameter(nullptr, "W"));
+		this->prop("W") = as_parameter(nullptr, "W");
 		// in_size が指定されていない場合は後回し
 		if (this->in_size != 0) {
 			this->init_W();
@@ -175,7 +183,7 @@ public:
 
 		// バイアスの初期化
 		if (!nobias) {
-			this->b = as_parameter(Parameter(as_array(nc::zeros<data_t>({ 1, out_size })), "b"));
+			this->prop("b") = as_parameter(as_array(nc::zeros<data_t>({ 1, out_size })), "b");
 		}
 	}
 
@@ -185,7 +193,7 @@ public:
 		auto I = this->in_size;
 		auto O = this->out_size;
 		auto W_data = nc::random::randN<data_t>({ I, O }) * nc::sqrt<data_t>(1.0 / I);
-		this->W->data = as_array(W_data);
+		this->prop("W")->data = as_array(W_data);
 	}
 
 	// 順伝播
@@ -194,11 +202,11 @@ public:
 		auto x = xs[0];
 
 		// データを流すタイミングで重みを初期化
-		if (!this->W->data) {
+		if (!this->prop("W")->data) {
 			this->in_size = x->shape().cols;
 			this->init_W();
 		}
-		auto y = F::linear(x, this->W, this->b);
+		auto y = F::linear(x, this->prop("W"), this->prop("b"));
 		return { y };
 	}
 };

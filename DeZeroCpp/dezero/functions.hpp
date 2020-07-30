@@ -356,6 +356,10 @@ inline VariablePtr sin(const VariablePtr& x)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList sin(const VariablePtrList& xs)
+{
+	return { sin(xs[0]) };
+}
 
 // cos
 inline VariablePtr cos(const VariablePtr& x)
@@ -364,6 +368,10 @@ inline VariablePtr cos(const VariablePtr& x)
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
+}
+inline VariablePtrList cos(const VariablePtrList& xs)
+{
+	return { cos(xs[0]) };
 }
 
 // tanh
@@ -374,6 +382,10 @@ inline VariablePtr tanh(const VariablePtr& x)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList tanh(const VariablePtrList& xs)
+{
+	return { tanh(xs[0]) };
+}
 
 // exp
 inline VariablePtr exp(const VariablePtr& x)
@@ -382,6 +394,10 @@ inline VariablePtr exp(const VariablePtr& x)
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
+}
+inline VariablePtrList exp(const VariablePtrList& xs)
+{
+	return { exp(xs[0]) };
 }
 
 // reshape
@@ -396,6 +412,10 @@ inline VariablePtr reshape(const VariablePtr& x, const nc::Shape& shape)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList reshape(const VariablePtrList& xs, const nc::Shape& shape)
+{
+	return { reshape(xs[0], shape) };
+}
 
 // transpose
 inline VariablePtr transpose(const VariablePtr& x)
@@ -405,6 +425,10 @@ inline VariablePtr transpose(const VariablePtr& x)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList transpose(const VariablePtrList& xs)
+{
+	return { transpose(xs[0]) };
+}
 
 // sum
 inline VariablePtr sum(const VariablePtr& x, nc::Axis axis /*=nc::Axis::NONE*/)
@@ -413,6 +437,10 @@ inline VariablePtr sum(const VariablePtr& x, nc::Axis axis /*=nc::Axis::NONE*/)
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
+}
+inline VariablePtrList sum(const VariablePtrList& xs, nc::Axis axis /*=nc::Axis::NONE*/)
+{
+	return { sum(xs[0], axis) };
 }
 
 // bloadcast_to
@@ -427,6 +455,10 @@ inline VariablePtr broadcast_to(const VariablePtr& x, const nc::Shape& shape)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList broadcast_to(const VariablePtrList& xs, const nc::Shape& shape)
+{
+	return { broadcast_to(xs[0], shape) };
+}
 
 // bloadcast_to
 inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape)
@@ -440,6 +472,10 @@ inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList sum_to(const VariablePtrList& xs, const nc::Shape& shape)
+{
+	return { sum_to(xs[0], shape) };
+}
 
 // matmul
 inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W)
@@ -449,14 +485,25 @@ inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList matmul(const VariablePtrList& xs)
+{
+	return { matmul(xs[0], xs[1]) };
+}
 
 // linear
-inline VariablePtr linear(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b)
+inline VariablePtr linear(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b /*=nullptr*/)
 {
 	auto f = FunctionPtr(new Linear());
 	VariablePtrList args = { x, W, b };
 	auto ys = (*f)(args);
 	return ys[0];
+}
+inline VariablePtrList linear(const VariablePtrList& xs)
+{
+	if (xs.size() >= 3)
+		return { linear(xs[0], xs[1], xs[2]) };
+	else
+		return { linear(xs[0], xs[1]) };
 }
 
 // linear 簡易版
@@ -469,6 +516,13 @@ inline VariablePtr linear_simple(const VariablePtr& x, const VariablePtr& W, con
 	t->data = nullptr;	// tのデータは不要なので消去
 	return y;
 }
+inline VariablePtrList linear_simple(const VariablePtrList& xs)
+{
+	if (xs.size() >= 3)
+		return { linear_simple(xs[0], xs[1], xs[2]) };
+	else
+		return { linear_simple(xs[0], xs[1]) };
+}
 
 // sigmoid
 inline VariablePtr sigmoid(const VariablePtr& x)
@@ -478,12 +532,20 @@ inline VariablePtr sigmoid(const VariablePtr& x)
 	auto ys = (*f)(args);
 	return ys[0];
 }
+inline VariablePtrList sigmoid(const VariablePtrList& xs)
+{
+	return { sigmoid(xs[0]) };
+}
 
 // sigmoid 簡易版
 inline VariablePtr sigmoid_simple(const VariablePtr& x)
 {
 	auto y = 1.0 / (1.0 + exp(-x));
 	return y;
+}
+inline VariablePtrList sigmoid_simple(const VariablePtrList& xs)
+{
+	return { sigmoid_simple(xs[0]) };
 }
 
 // mean_squared_error
@@ -493,6 +555,10 @@ inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& 
 	VariablePtrList args = { x0, x1 };
 	auto ys = (*f)(args);
 	return ys[0];
+}
+inline VariablePtrList mean_squared_error(const VariablePtrList& xs)
+{
+	return { mean_squared_error(xs[0], xs[1]) };
 }
 
 }	// namespace dz::functions

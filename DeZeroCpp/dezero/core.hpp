@@ -53,13 +53,13 @@ inline VariablePtr as_variable(nullptr_t = nullptr)
 {
 	return VariablePtr();	// 引数なしまたは nullptr の場合は Empty とする
 }
-inline VariablePtr as_variable(const NdArrayPtr& data)
+inline VariablePtr as_variable(const NdArrayPtr& data, const std::string& name = "")
 {
-	return std::make_shared<Variable>(data);
+	return std::make_shared<Variable>(data, name);
 }
-inline VariablePtr as_variable(const Variable& data)
+inline VariablePtr as_variable(const Variable& data, const std::string& name = "")
 {
-	return std::make_shared<Variable>(data);
+	return std::make_shared<Variable>(data, name);
 }
 
 //----------------------------------
@@ -110,11 +110,27 @@ extern inline VariablePtr sum(const VariablePtr& x, nc::Axis axis = nc::Axis::NO
 extern inline VariablePtr broadcast_to(const VariablePtr& x, const nc::Shape& shape);
 extern inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape);
 extern inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W);
-extern inline VariablePtr linear(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b);
+extern inline VariablePtr linear(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b = nullptr);
 extern inline VariablePtr linear_simple(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b = nullptr);
 extern inline VariablePtr sigmoid(const VariablePtr& x);
 extern inline VariablePtr sigmoid_simple(const VariablePtr& x);
 extern inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& x1);
+
+extern inline VariablePtrList sin(const VariablePtrList& xs);
+extern inline VariablePtrList cos(const VariablePtrList& xs);
+extern inline VariablePtrList tanh(const VariablePtrList& xs);
+extern inline VariablePtrList exp(const VariablePtrList& xs);
+extern inline VariablePtrList reshape(const VariablePtrList& xs, const nc::Shape& shape);
+extern inline VariablePtrList transpose(const VariablePtrList& xs);
+extern inline VariablePtrList sum(const VariablePtrList& xs, nc::Axis axis = nc::Axis::NONE);
+extern inline VariablePtrList broadcast_to(const VariablePtrList& xs, const nc::Shape& shape);
+extern inline VariablePtrList sum_to(const VariablePtrList& xs, const nc::Shape& shape);
+extern inline VariablePtrList matmul(const VariablePtrList& xs);
+extern inline VariablePtrList linear(const VariablePtrList& xs);
+extern inline VariablePtrList linear_simple(const VariablePtrList& xs);
+extern inline VariablePtrList sigmoid(const VariablePtrList& xs);
+extern inline VariablePtrList sigmoid_simple(const VariablePtrList& xs);
+extern inline VariablePtrList mean_squared_error(const VariablePtrList& xs);
 }	// namespace functions
 
 namespace utils
@@ -261,13 +277,13 @@ public:
 };
 
 // ParameterPtr生成関数 (基底クラスのVariablePtr型として扱う)
-inline VariablePtr as_parameter(const NdArrayPtr& data)
+inline VariablePtr as_parameter(const NdArrayPtr& data, const std::string& name = "")
 {
-	return std::make_shared<Parameter>(data);
+	return std::make_shared<Parameter>(data, name);
 }
-inline VariablePtr as_parameter(const Parameter& data)
+inline VariablePtr as_parameter(const Parameter& data, const std::string& name = "")
 {
-	return std::make_shared<Parameter>(data);
+	return std::make_shared<Parameter>(data, name);
 }
 
 // 関数クラス
