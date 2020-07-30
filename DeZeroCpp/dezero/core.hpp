@@ -57,9 +57,9 @@ inline VariablePtr as_variable(const NdArrayPtr& data, const std::string& name =
 {
 	return std::make_shared<Variable>(data, name);
 }
-inline VariablePtr as_variable(const Variable& data, const std::string& name = "")
+inline VariablePtr as_variable(const Variable& data)
 {
-	return std::make_shared<Variable>(data, name);
+	return std::make_shared<Variable>(data);
 }
 
 //----------------------------------
@@ -281,9 +281,9 @@ inline VariablePtr as_parameter(const NdArrayPtr& data, const std::string& name 
 {
 	return std::make_shared<Parameter>(data, name);
 }
-inline VariablePtr as_parameter(const Parameter& data, const std::string& name = "")
+inline VariablePtr as_parameter(const Parameter& data)
 {
-	return std::make_shared<Parameter>(data, name);
+	return std::make_shared<Parameter>(data);
 }
 
 // ŠÖ”ƒNƒ‰ƒX
