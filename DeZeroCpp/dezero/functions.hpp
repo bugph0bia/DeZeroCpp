@@ -6,8 +6,16 @@ namespace dz::functions
 {
 
 //----------------------------------
+// type
+//----------------------------------
+
+// 汎用的な関数型
+using function_t = VariablePtrList(const VariablePtrList&);
+
+//----------------------------------
 // class
 //----------------------------------
+
 // 関数クラス（sin）
 class Sin : public Function
 {
@@ -351,7 +359,7 @@ public:
 // sin
 inline VariablePtr sin(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Sin());
+	FunctionPtr f = std::make_shared<Sin>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -364,7 +372,7 @@ inline VariablePtrList sin(const VariablePtrList& xs)
 // cos
 inline VariablePtr cos(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Cos());
+	FunctionPtr f = std::make_shared<Cos>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -377,7 +385,7 @@ inline VariablePtrList cos(const VariablePtrList& xs)
 // tanh
 inline VariablePtr tanh(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Tanh());
+	FunctionPtr f = std::make_shared<Tanh>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -390,7 +398,7 @@ inline VariablePtrList tanh(const VariablePtrList& xs)
 // exp
 inline VariablePtr exp(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Exp());
+	FunctionPtr f = std::make_shared<Exp>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -407,7 +415,7 @@ inline VariablePtr reshape(const VariablePtr& x, const nc::Shape& shape)
 	if (x->data->shape() == shape) {
 		return as_variable(*x);
 	}
-	auto f = FunctionPtr(new Reshape(shape));
+	FunctionPtr f = std::make_shared<Reshape>(shape);
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -420,7 +428,7 @@ inline VariablePtrList reshape(const VariablePtrList& xs, const nc::Shape& shape
 // transpose
 inline VariablePtr transpose(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Transpose());
+	FunctionPtr f = std::make_shared<Transpose>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -433,7 +441,7 @@ inline VariablePtrList transpose(const VariablePtrList& xs)
 // sum
 inline VariablePtr sum(const VariablePtr& x, nc::Axis axis /*=nc::Axis::NONE*/)
 {
-	auto f = FunctionPtr(new Sum(axis));
+	FunctionPtr f = std::make_shared<Sum>(axis);
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -450,7 +458,7 @@ inline VariablePtr broadcast_to(const VariablePtr& x, const nc::Shape& shape)
 	if (x->data->shape() == shape) {
 		return as_variable(*x);
 	}
-	auto f = FunctionPtr(new BroadcastTo(shape));
+	FunctionPtr f = std::make_shared<BroadcastTo>(shape);
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -467,7 +475,7 @@ inline VariablePtr sum_to(const VariablePtr& x, const nc::Shape& shape)
 	if (x->data->shape() == shape) {
 		return as_variable(*x);
 	}
-	auto f = FunctionPtr(new SumTo(shape));
+	FunctionPtr f = std::make_shared<SumTo>(shape);
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -480,7 +488,7 @@ inline VariablePtrList sum_to(const VariablePtrList& xs, const nc::Shape& shape)
 // matmul
 inline VariablePtr matmul(const VariablePtr& x, const VariablePtr& W)
 {
-	auto f = FunctionPtr(new MatMul());
+	FunctionPtr f = std::make_shared<MatMul>();
 	VariablePtrList args = { x, W };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -493,7 +501,7 @@ inline VariablePtrList matmul(const VariablePtrList& xs)
 // linear
 inline VariablePtr linear(const VariablePtr& x, const VariablePtr& W, const VariablePtr& b /*=nullptr*/)
 {
-	auto f = FunctionPtr(new Linear());
+	FunctionPtr f = std::make_shared<Linear>();
 	VariablePtrList args = { x, W, b };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -527,7 +535,7 @@ inline VariablePtrList linear_simple(const VariablePtrList& xs)
 // sigmoid
 inline VariablePtr sigmoid(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Sigmoid());
+	FunctionPtr f = std::make_shared<Sigmoid>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -551,7 +559,7 @@ inline VariablePtrList sigmoid_simple(const VariablePtrList& xs)
 // mean_squared_error
 inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& x1)
 {
-	auto f = FunctionPtr(new MeanSquaredError());
+	FunctionPtr f = std::make_shared<MeanSquaredError>();
 	VariablePtrList args = { x0, x1 };
 	auto ys = (*f)(args);
 	return ys[0];

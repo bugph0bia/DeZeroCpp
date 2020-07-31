@@ -2,10 +2,27 @@
 
 #include "../dezero/dezero.hpp"
 
+namespace F = dz::functions;
+
 namespace dz::layers
 {
 
-namespace F = functions;
+// クラス前方宣言
+class Layer;
+
+//----------------------------------
+// type
+//----------------------------------
+
+// スマートポインタ型
+using LayerPtr = std::shared_ptr<Layer>;
+
+// プロパティの値
+using prop_value_t = std::variant<VariablePtr, LayerPtr>;
+// プロパティコレクション
+using props_t = std::unordered_map<std::string, prop_value_t>;
+// パラメータ名称コレクション
+using params_t = std::set<std::string>;
 
 //----------------------------------
 // class
@@ -16,15 +33,15 @@ class PropProxy
 {
 private:
 	// プロパティ
-	std::unordered_map<std::string, VariablePtr>& props;
+	props_t& props;
 	// プロパティ内のパラメータ一覧
-	std::set<std::string>& param_names;
+	params_t& param_names;
 	// キー
 	const std::string& key;
 
 public:
 	// コンストラクタ
-	PropProxy(std::unordered_map<std::string, VariablePtr>& props, std::set<std::string>& param_names, const std::string& key) :
+	PropProxy(props_t& props, params_t& param_names, const std::string& key) :
 		props(props),
 		param_names(param_names),
 		key(key)
@@ -34,26 +51,28 @@ public:
 	PropProxy(const PropProxy&) = default;
 	PropProxy(PropProxy&&) = default;
 
-	// コピー代入演算子 (set代理)
+	// VariablePtrのコピー代入演算子 (set代理)
 	PropProxy& operator=(const VariablePtr& value)
 	{
-		if (typeid(*value) == typeid(Parameter)) {
-			param_names.insert(key);
-		}
-		props[key] = value;
-		return *this;
+		return this->set<VariablePtr>(value);
+	}
+
+	// LayerPtrのコピー代入演算子 (set代理)
+	PropProxy& operator=(const LayerPtr& value)
+	{
+		return this->set<LayerPtr>(value);
 	}
 
 	// VariablePtrへのキャスト演算子 (get代理)
 	operator VariablePtr() const noexcept
 	{
-		auto v = VariablePtr();
-		if (props.find(key) != props.end())
-			v = props[key];
-		else
-			assert(false);	// 存在しないプロパティの参照
+		return this->get<VariablePtr>();
+	}
 
-		return v;
+	// LayerPtrへのキャスト演算子 (get代理)
+	operator LayerPtr() const noexcept
+	{
+		return this->get<LayerPtr>();
 	}
 
 	// アロー演算子で対象の VariablePtr のメンバを直接操作
@@ -61,18 +80,61 @@ public:
 	{
 		return static_cast<VariablePtr>(*this);
 	}
+
+private:
+	// set処理
+	template<typename T>
+	PropProxy& set(const T& value)
+	{
+		// ParameterPtr, LayerPtr(派生クラス含む) であれば、パラメータとして登録する
+		if (typeid(*value) == typeid(Parameter)) {
+			param_names.insert(key);
+		}
+		else {
+			try {
+				// Layer&にキャスト可能なら、Layerの派生クラス型である
+				dynamic_cast<Layer&>(*value);
+				param_names.insert(key);
+			}
+			catch (std::bad_cast&) {}
+		}
+		// プロパティへ登録
+		props[key] = value;
+		return *this;
+	}
+
+	// get処理
+	template<typename T>
+	T get() const noexcept
+	{
+		auto p = T();
+		if (props.find(key) != props.end()) {
+			if (std::holds_alternative<T>(props[key])) {
+				p = std::get<T>(props[key]);
+			}
+			else {
+				// 異なる型として参照
+				assert(false);
+			}
+		}
+		else {
+			// 存在しないプロパティの参照
+			assert(false);
+		}
+
+		return p;
+	}
+
 };
 
+// レイヤクラス
 class Layer
 {
 protected:
-	using props_type = std::unordered_map<std::string, VariablePtr>;
-	using params_type = std::set<std::string>;
-
 	// プロパティ
-	props_type props;
+	props_t props;
 	// プロパティ内のパラメータ一覧
-	params_type param_names;
+	params_t param_names;
 
 	// 入力データ
 	VariableWPtrList inputs;
@@ -89,6 +151,18 @@ public:
 	{
 		return (*this)[key];
 	}
+
+	// Layerプロパティをget
+	Layer& layer(const std::string& key)
+	{
+		return *(static_cast<LayerPtr>((*this)[key]));
+	}
+
+	//// Variableプロパティをget
+	//Variable& variable(const std::string& key)
+	//{
+	//	return *(static_cast<VariablePtr>((*this)[key]));
+	//}
 
 	// []演算子：プロパティのset/get
 	PropProxy operator[](const std::string& key)
@@ -131,22 +205,38 @@ public:
 	virtual VariablePtrList forward(const VariablePtrList& xs) = 0;
 
 	// パラメータのコレクションを生成
-	decltype(auto) params()
+	std::set<VariablePtr> params()
 	{
 		// プロパティがパラメータであるか判断
-		auto is_param = [this](const props_type::value_type& kv)
+		auto is_param = [this](const props_t::value_type& kv)
 		{
 			return this->param_names.find(kv.first) != this->param_names.end();
 		};
 
 		// プロパティからパラメータのみを抽出
-		props_type props_param_only;
+		props_t props_param_only;
 		std::copy_if(this->props.begin(), this->props.end(), std::inserter(props_param_only, props_param_only.end()), is_param);
 
-		// プロパティの値のコレクションを返す
+		// パラメータの値のコレクションを返す
 		std::set<VariablePtr> param_values;
 		for (auto& kv : props_param_only) {
-			param_values.insert(kv.second);
+			// プロパティがVariablePtr
+			if (std::holds_alternative<VariablePtr>(kv.second)) {
+				auto v = std::get<VariablePtr>(kv.second);
+
+				// 実態はParameterPtr
+				if (typeid(*v) == typeid(Parameter)) {
+					param_values.insert(v);
+				}
+			}
+			// プロパティがLayerPtr
+			if (std::holds_alternative<LayerPtr>(kv.second)) {
+				auto l = std::get<LayerPtr>(kv.second);
+
+				// 下位レイヤのパラメータを挿入
+				auto params_from_layer = l->params();
+				param_values.insert(params_from_layer.begin(), params_from_layer.end());
+			}
 		}
 		return param_values;
 	}

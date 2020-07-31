@@ -19,12 +19,12 @@ using data_t = double;	// TODO: 最終的には float にする
 using NdArray = nc::NdArray<data_t>;
 
 // スマートポインタ型
-using NdArrayPtr = std::shared_ptr<NdArray>;		// インスタンス生成時は std::make_shared<NdArray> 関数を使うこと
-using VariablePtr = std::shared_ptr<Variable>;		// インスタンス生成時は std::make_shared<Variable> 関数を使うこと
+using NdArrayPtr = std::shared_ptr<NdArray>;
+using VariablePtr = std::shared_ptr<Variable>;
 using VariableWPtr = std::weak_ptr<Variable>;
-using ParameterPtr = std::shared_ptr<Parameter>;	// インスタンス生成時は std::make_shared<Parameter> 関数を使うこと
-using FunctionPtr = std::shared_ptr<Function>;		// 派生クラスのインスタンス生成時は new を使うこと
-													// （make_shared を使うと Function クラスがインスタンス化されてエラーとなる）
+using ParameterPtr = std::shared_ptr<Parameter>;
+using FunctionPtr = std::shared_ptr<Function>;
+
 // リスト型
 using NdArrayPtrList = std::vector<NdArrayPtr>;
 using VariablePtrList = std::vector<VariablePtr>;
@@ -139,6 +139,8 @@ extern std::string replace_all(const std::string& target_str, const std::string&
 extern inline NdArray broadcast_to(const NdArray& in_array, const nc::Shape& shape);
 extern inline NdArray sum_to(const NdArray& in_array, const nc::Shape& shape);
 extern inline void broadcast_mutual(NdArray& a0, NdArray& a1);
+
+extern inline void plot_dot_graph(const VariablePtr& output, bool verbose = true, const std::string& to_file = "graph.png");
 }	// namespace utils
 
 //----------------------------------
@@ -706,7 +708,7 @@ inline std::ostream& operator<<(std::ostream& ost, const VariablePtr& p)
 // 加算
 inline VariablePtr add(const VariablePtr& x0, const VariablePtr& x1)
 {
-	auto f = FunctionPtr(new Add());
+	FunctionPtr f = std::make_shared<Add>();
 	VariablePtrList args = { x0, x1 };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -715,7 +717,7 @@ inline VariablePtr add(const VariablePtr& x0, const VariablePtr& x1)
 // 減算
 inline VariablePtr sub(const VariablePtr& x0, const VariablePtr& x1)
 {
-	auto f = FunctionPtr(new Sub());
+	FunctionPtr f = std::make_shared<Sub>();
 	VariablePtrList args = { x0, x1 };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -724,7 +726,7 @@ inline VariablePtr sub(const VariablePtr& x0, const VariablePtr& x1)
 // 乗算
 inline VariablePtr mul(const VariablePtr& x0, const VariablePtr& x1)
 {
-	auto f = FunctionPtr(new Mul());
+	FunctionPtr f = std::make_shared<Mul>();
 	VariablePtrList args = { x0, x1 };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -733,7 +735,7 @@ inline VariablePtr mul(const VariablePtr& x0, const VariablePtr& x1)
 // 除算
 inline VariablePtr div(const VariablePtr& x0, const VariablePtr& x1)
 {
-	auto f = FunctionPtr(new Div());
+	FunctionPtr f = std::make_shared<Div>();
 	VariablePtrList args = { x0, x1 };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -742,7 +744,7 @@ inline VariablePtr div(const VariablePtr& x0, const VariablePtr& x1)
 // 正数
 inline VariablePtr pos(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Pos());
+	FunctionPtr f = std::make_shared<Pos>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -751,7 +753,7 @@ inline VariablePtr pos(const VariablePtr& x)
 // 負数
 inline VariablePtr neg(const VariablePtr& x)
 {
-	auto f = FunctionPtr(new Neg());
+	FunctionPtr f = std::make_shared<Neg>();
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];
@@ -760,7 +762,7 @@ inline VariablePtr neg(const VariablePtr& x)
 // 累乗
 inline VariablePtr power(const VariablePtr& x, uint32_t c)
 {
-	auto f = FunctionPtr(new Pow(c));
+	FunctionPtr f = std::make_shared<Pow>(c);
 	VariablePtrList args = { x };
 	auto ys = (*f)(args);
 	return ys[0];

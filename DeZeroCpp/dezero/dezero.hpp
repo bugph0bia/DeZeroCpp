@@ -11,6 +11,8 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <variant>
+#include <functional>
 
 #include "NumCpp.hpp"
 
@@ -23,4 +25,5 @@
 
 #include "functions.hpp"
 #include "layers.hpp"
+#include "models.hpp"
 #include "utils.hpp"

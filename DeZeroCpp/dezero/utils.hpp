@@ -256,7 +256,7 @@ inline std::string get_dot_graph(const VariablePtr& output, bool verbose = true)
 }
 
 // DOTグラフから指定ファイルにレンダリング
-inline void plot_dot_graph(const VariablePtr& output, bool verbose = true, const std::string& to_file = "graph.png")
+inline void plot_dot_graph(const VariablePtr& output, bool verbose /*=true*/, const std::string& to_file /*="graph.png"*/)
 {
 	// dot形式のデータを生成
 	std::string dot_graph = get_dot_graph(output, verbose);
