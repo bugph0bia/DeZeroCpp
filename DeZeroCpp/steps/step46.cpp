@@ -8,9 +8,9 @@ using namespace dz::models;
 namespace F = functions;
 namespace L = layers;
 
-namespace step45 {
+namespace step46 {
 
-void step45()
+void step46()
 {
 	{
 		// データセット
@@ -22,29 +22,13 @@ void step45()
 		int max_iter = 10000;
 		int hidden_size = 10;
 
-		class TwoLayerNet : public Model
-		{
-		public:
-			// コンストラクタ
-			TwoLayerNet(int hidden_size, int out_size)
-			{
-				this->prop("l1") = std::make_shared<L::Linear>(hidden_size);
-				this->prop("l2") = std::make_shared<L::Linear>(out_size);
-			}
+		auto model = MLP({ hidden_size, 1 });
 
-			// 順伝播
-			VariablePtrList forward(const VariablePtrList& xs) override
-			{
-				//auto y = (*(static_cast<L::LayerPtr>(this->prop("l1"))))(x);	// Layer::layer関数が使えないとこのように煩雑なコードになる
-				auto y = this->layer("l1")(xs);
-				y = F::sigmoid(y);
-				y = this->layer("l2")(y);
-				return y;
-			}
-		};
+		//auto optimizer = optimizers::SGD(lr);
+		auto optimizer = optimizers::MomentumSGD(lr);
 
-		auto model = TwoLayerNet(hidden_size, 1);
-		model.plot({ x });
+		//optimizer.setup(std::make_shared<MLP>(model));	// 使用側のコードにスマートポインタを意識させないようにする
+		optimizer.setup(&model);
 
 		for (int i = 0; i < max_iter; i++) {
 			auto y_pred = model(x)[0];

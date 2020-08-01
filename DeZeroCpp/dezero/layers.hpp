@@ -21,8 +21,10 @@ using LayerPtr = std::shared_ptr<Layer>;
 using prop_value_t = std::variant<VariablePtr, LayerPtr>;
 // プロパティコレクション
 using props_t = std::unordered_map<std::string, prop_value_t>;
+// パラメータコレクション
+using params_t = std::set<VariablePtr>;
 // パラメータ名称コレクション
-using params_t = std::set<std::string>;
+using param_names_t = std::set<std::string>;
 
 //----------------------------------
 // class
@@ -35,13 +37,13 @@ private:
 	// プロパティ
 	props_t& props;
 	// プロパティ内のパラメータ一覧
-	params_t& param_names;
+	param_names_t& param_names;
 	// キー
 	const std::string& key;
 
 public:
 	// コンストラクタ
-	PropProxy(props_t& props, params_t& param_names, const std::string& key) :
+	PropProxy(props_t& props, param_names_t& param_names, const std::string& key) :
 		props(props),
 		param_names(param_names),
 		key(key)
@@ -134,7 +136,7 @@ protected:
 	// プロパティ
 	props_t props;
 	// プロパティ内のパラメータ一覧
-	params_t param_names;
+	param_names_t param_names;
 
 	// 入力データ
 	VariableWPtrList inputs;
@@ -205,7 +207,7 @@ public:
 	virtual VariablePtrList forward(const VariablePtrList& xs) = 0;
 
 	// パラメータのコレクションを生成
-	std::set<VariablePtr> params()
+	params_t params()
 	{
 		// プロパティがパラメータであるか判断
 		auto is_param = [this](const props_t::value_type& kv)
@@ -218,7 +220,7 @@ public:
 		std::copy_if(this->props.begin(), this->props.end(), std::inserter(props_param_only, props_param_only.end()), is_param);
 
 		// パラメータの値のコレクションを返す
-		std::set<VariablePtr> param_values;
+		params_t param_values;
 		for (auto& kv : props_param_only) {
 			// プロパティがVariablePtr
 			if (std::holds_alternative<VariablePtr>(kv.second)) {

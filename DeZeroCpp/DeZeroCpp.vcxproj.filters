@@ -165,6 +165,9 @@
     <ClCompile Include="steps\step45.cpp">
       <Filter>ソース ファイル\steps</Filter>
     </ClCompile>
+    <ClCompile Include="steps\step46.cpp">
+      <Filter>ソース ファイル\steps</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dezero\dezero.hpp">
@@ -189,6 +192,9 @@
       <Filter>ヘッダー ファイル\dezero</Filter>
     </ClInclude>
     <ClInclude Include="dezero\models.hpp">
+      <Filter>ヘッダー ファイル\dezero</Filter>
+    </ClInclude>
+    <ClInclude Include="dezero\Optimizers.hpp">
       <Filter>ヘッダー ファイル\dezero</Filter>
     </ClInclude>
   </ItemGroup>
