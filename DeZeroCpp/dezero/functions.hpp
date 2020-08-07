@@ -352,6 +352,39 @@ public:
 	}
 };
 
+// ä÷êîÉNÉâÉXÅiSoftmaxÅj
+class Softmax : public Function
+{
+public:
+	// é≤
+	nc::Axis axis;
+
+	// ÉRÉìÉXÉgÉâÉNÉ^
+	Softmax(nc::Axis axis = nc::Axis::ROW) :
+		axis(axis)
+	{}
+
+	// èáì`îd
+	NdArrayPtrList forward(const NdArrayPtrList& xs) override
+	{
+		auto x = *(xs[0]);
+		auto y = x - x.max(axis);
+		y = nc::exp(y);
+		y /= y.sum(axis);
+		return { as_array(y) };
+	}
+	// ãtì`îd
+	VariablePtrList backward(const VariablePtrList& gys) override
+	{
+		auto gy = gys[0];
+		auto y = this->outputs[0].lock();
+		auto gx = y * gy;
+		auto sumdx = gx->sum(axis);
+		gx = gx - y * sumdx;
+		return { gx };
+	}
+};
+
 //----------------------------------
 // function
 //----------------------------------
@@ -567,6 +600,31 @@ inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& 
 inline VariablePtrList mean_squared_error(const VariablePtrList& xs)
 {
 	return { mean_squared_error(xs[0], xs[1]) };
+}
+
+// softmax
+inline VariablePtr softmax(const VariablePtr& x, nc::Axis axis /*=nc::Axis::ROW*/)
+{
+	FunctionPtr f = std::make_shared<Softmax>(axis);
+	VariablePtrList args = { x };
+	auto ys = (*f)(args);
+	return ys[0];
+}
+inline VariablePtrList softmax(const VariablePtrList& xs, nc::Axis axis)
+{
+	return { softmax(xs[0], axis) };
+}
+
+// softmaxä»à’î≈
+inline VariablePtr softmax_simple(const VariablePtr& x, nc::Axis axis /*=nc::Axis::ROW*/)
+{
+	auto y = exp(x);
+	auto sum_y = sum(y, axis);
+	return y / sum_y;
+}
+inline VariablePtrList softmax_simple(const VariablePtrList& xs, nc::Axis axis)
+{
+	return { softmax_simple(xs[0], axis) };
 }
 
 }	// namespace dz::functions

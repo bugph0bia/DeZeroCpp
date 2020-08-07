@@ -115,6 +115,8 @@ extern inline VariablePtr linear_simple(const VariablePtr& x, const VariablePtr&
 extern inline VariablePtr sigmoid(const VariablePtr& x);
 extern inline VariablePtr sigmoid_simple(const VariablePtr& x);
 extern inline VariablePtr mean_squared_error(const VariablePtr& x0, const VariablePtr& x1);
+extern inline VariablePtr softmax(const VariablePtr& x, nc::Axis axis = nc::Axis::ROW);
+extern inline VariablePtr softmax_simple(const VariablePtr& x, nc::Axis axis = nc::Axis::ROW);
 
 extern inline VariablePtrList sin(const VariablePtrList& xs);
 extern inline VariablePtrList cos(const VariablePtrList& xs);
@@ -131,6 +133,8 @@ extern inline VariablePtrList linear_simple(const VariablePtrList& xs);
 extern inline VariablePtrList sigmoid(const VariablePtrList& xs);
 extern inline VariablePtrList sigmoid_simple(const VariablePtrList& xs);
 extern inline VariablePtrList mean_squared_error(const VariablePtrList& xs);
+extern inline VariablePtrList softmax(const VariablePtrList& xs, nc::Axis axis = nc::Axis::ROW);
+extern inline VariablePtrList softmax_simple(const VariablePtrList& xs, nc::Axis axis = nc::Axis::ROW);
 }	// namespace functions
 
 namespace utils
